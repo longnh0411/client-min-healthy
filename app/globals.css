@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/* Palette sức khoẻ — light mặc định, .dark ghi đè (toggle qua class trên <html>) */
+:root {
+  --bg: #ffffff;
+  --panel: #f5f9f7;
+  --panel2: #eaf2ee;
+  --line: #d6e2dc;
+  --ink: #1c2a24;
+  --muted: #5b6f66;
+  --faint: #8ca096;
+  --pos: #177245;
+  --neg: #c62828;
+  --amber: #a05a00;
+  --blue: #1565c0;
+  --accent: #0e7a5f;
+  --accent-soft: #e0f2ec;
+  --scrollbar-thumb: #c4d4cc;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b1210;
+  --panel: #121c18;
+  --panel2: #0e1714;
+  --line: #1f2f28;
+  --ink: #e4efe9;
+  --muted: #8fa79c;
+  --faint: #5e7268;
+  --pos: #4ade80;
+  --neg: #f87171;
+  --amber: #fbbf24;
+  --blue: #60a5fa;
+  --accent: #34d399;
+  --accent-soft: #10312a;
+  --scrollbar-thumb: #2a3b34;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel2: var(--panel2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-pos: var(--pos);
+  --color-neg: var(--neg);
+  --color-amber: var(--amber);
+  --color-blue: var(--blue);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ---------- Scrollbar ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ---------- Chip trạng thái số đo: chữ + màu (a11y — không dựa màu một mình) ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.chip::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+}
+.chip-low {
+  color: var(--neg);
+  border-color: color-mix(in srgb, var(--neg) 40%, transparent);
+  background: color-mix(in srgb, var(--neg) 10%, transparent);
+}
+.chip-slightly-low {
+  color: var(--amber);
+  border-color: color-mix(in srgb, var(--amber) 40%, transparent);
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
+}
+.chip-in-target {
+  color: var(--pos);
+  border-color: color-mix(in srgb, var(--pos) 40%, transparent);
+  background: color-mix(in srgb, var(--pos) 10%, transparent);
+}
+.chip-high {
+  color: var(--amber);
+  border-color: color-mix(in srgb, var(--amber) 40%, transparent);
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+}
+.chip-very-high {
+  color: #ffffff;
+  border-color: var(--neg);
+  background: var(--neg);
+}
+.dark .chip-very-high {
+  color: #0b1210;
+}
+
+/* ---------- Bottom sheet: trượt từ dưới lên ---------- */
+@keyframes sheet-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sheet-panel-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sheet-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes sheet-panel-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(100%); }
+}
+.sheet-backdrop {
+  animation: sheet-backdrop-in 0.16s ease-out;
+}
+.sheet-panel {
+  animation: sheet-panel-in 0.24s cubic-bezier(0.2, 0.8, 0.3, 1.05);
+}
+.sheet-closing .sheet-backdrop {
+  animation: sheet-backdrop-out 0.16s ease-in forwards;
+}
+.sheet-closing .sheet-panel {
+  animation: sheet-panel-out 0.18s ease-in forwards;
+}
+
+/* ---------- Skeleton loading ---------- */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.skeleton {
+  border-radius: 10px;
+  background: var(--panel2);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+/* ---------- Login ---------- */
+@keyframes login-card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.login-card {
+  animation: login-card-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1.1);
+}
+
+/* ---------- Số đo lớn (a11y: ≥28px) ---------- */
+.reading-value {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.reading-value-xl {
+  font-size: 44px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+/* Ảnh phần ăn trong thẻ bữa ăn */
+.meal-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex: none;
+}

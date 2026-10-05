@@ -1,0 +1,21 @@
+# Công cụ quét bảo mật — state cục bộ, không đưa vào repo
+.mimosa/
+.zcode/
+
+# File hệ điều hành / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Node
+node_modules/
+dist/
+.next/
+.env
+
+# tsc incremental
+*.tsbuildinfo
+
+# local env (chỉ .env.example được commit)
+.env.local
