@@ -1,9 +1,10 @@
 "use client";
 
-// Sheet Cài đặt: 2 phần — (1) Ngưỡng phân loại theo chỉ định bác sĩ,
-// (2) Nhắc nhở đo (bật thông báo FCM + quản lý tối đa 6 mốc giờ).
+// Sheet Cài đặt: 3 phần — (1) Giao diện sáng/tối, (2) Ngưỡng phân loại theo
+// chỉ định bác sĩ, (3) Nhắc nhở đo (bật thông báo FCM + tối đa 6 mốc giờ).
 import { useEffect, useState } from "react";
 import BottomSheet from "./BottomSheet";
+import { IconMoon, IconSun } from "./icons";
 import { updateSettings } from "@/lib/api";
 import { enableNotifications, disableNotifications, isMessagingConfigured } from "@/lib/notifications";
 import { DEFAULT_THRESHOLDS, type GlucoseThresholds } from "@/lib/glucose";
@@ -51,6 +52,7 @@ export default function SettingsSheet({ open, settings, notificationsEnabled, on
   const [thresholds, setThresholds] = useState<GlucoseThresholds>(DEFAULT_THRESHOLDS);
   const [reminders, setReminders] = useState<GlucoseReminder[]>([]);
   const [notifOn, setNotifOn] = useState(notificationsEnabled);
+  const [dark, setDark] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -65,8 +67,19 @@ export default function SettingsSheet({ open, settings, notificationsEnabled, on
     });
     setReminders(settings.reminders.map((r) => ({ ...r })));
     setNotifOn(notificationsEnabled);
+    setDark(document.documentElement.classList.contains("dark"));
     setError(null);
   }, [open, settings, notificationsEnabled]);
+
+  const setTheme = (next: boolean) => {
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("theme", next ? "dark" : "light");
+    } catch {
+      /* bỏ qua */
+    }
+  };
 
   const setField = (key: keyof GlucoseThresholds, v: string) => {
     const n = Number(v);
@@ -121,6 +134,19 @@ export default function SettingsSheet({ open, settings, notificationsEnabled, on
   return (
     <BottomSheet open={open} title="Cài đặt" onClose={onClose}>
       <div className="space-y-5">
+        {/* ---------- Giao diện ---------- */}
+        <section>
+          <h3 className="mb-2 text-sm font-bold">Giao diện</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" className="pick justify-center" data-on={!dark} onClick={() => setTheme(false)}>
+              <IconSun className="h-4 w-4" /> Sáng
+            </button>
+            <button type="button" className="pick justify-center" data-on={dark} onClick={() => setTheme(true)}>
+              <IconMoon className="h-4 w-4" /> Tối
+            </button>
+          </div>
+        </section>
+
         {/* ---------- Ngưỡng phân loại ---------- */}
         <section>
           <h3 className="mb-1 text-sm font-bold">Ngưỡng đường huyết (mg/dL)</h3>

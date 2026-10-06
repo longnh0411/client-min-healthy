@@ -19,9 +19,10 @@ import PostMealSheet from "@/components/PostMealSheet";
 import EditMealSheet from "@/components/EditMealSheet";
 import SettingsSheet from "@/components/SettingsSheet";
 import BottomNav from "@/components/BottomNav";
-import NotificationBell from "@/components/NotificationBell";
+import NotificationSheet from "@/components/NotificationSheet";
 import { DropMark, IconPlus } from "@/components/icons";
 import { dayGroupLabel, dayKey } from "@/lib/format";
+import { listNotifications } from "@/lib/api";
 
 // Số bữa tối đa tải cho A1c 90 ngày + biểu đồ + lịch sử (5 trang × 100)
 const MAX_MEALS = 500;
@@ -35,7 +36,16 @@ export default function HomePage() {
   const [dangerValue, setDangerValue] = useState<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifUnread, setNotifUnread] = useState(0);
   const [notifRefresh, setNotifRefresh] = useState(0);
+
+  // Số thông báo chưa đọc cho badge trên nav — reload khi có push / khi đọc xong
+  useEffect(() => {
+    listNotifications(false)
+      .then((r) => setNotifUnread(r.length))
+      .catch(() => setNotifUnread(0));
+  }, [notifRefresh, notifOpen]);
 
   const [preOpen, setPreOpen] = useState(false);
   const [postOpen, setPostOpen] = useState(false);
@@ -84,7 +94,7 @@ export default function HomePage() {
     onForegroundMessage((title, body) => {
       setToast(`${title}: ${body}`);
       setTimeout(() => setToast(null), 5000);
-      setNotifRefresh((k) => k + 1); // push mới đến → chuông reload danh sách
+      setNotifRefresh((k) => k + 1); // push mới đến → badge thông báo reload
     }).then((un) => {
       unsubMsg = un;
     });
@@ -134,7 +144,7 @@ export default function HomePage() {
     <div className="mx-auto min-h-screen max-w-[680px] px-5 pb-28 sm:px-8">
       <AuthGate />
 
-      {/* ---------- Header: thương hiệu + chuông thông báo ---------- */}
+      {/* ---------- Header: thương hiệu ---------- */}
       <header className="sticky top-0 z-40 -mx-5 mb-5 flex items-center justify-between gap-2 border-b border-line bg-bg/85 px-5 py-3 backdrop-blur sm:-mx-8 sm:px-8">
         <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight">
           <DropMark size={22} />
@@ -143,7 +153,6 @@ export default function HomePage() {
             <span className="ml-1 hidden text-xs font-normal text-faint sm:inline">{user.email}</span>
           )}
         </h1>
-        <NotificationBell refreshKey={notifRefresh} />
       </header>
 
       <InstallPrompt />
@@ -208,13 +217,21 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ---------- Thanh điều hướng đáy: Lịch sử · Cài đặt · [＋ Ghi đo] · Giao diện · Đăng xuất ---------- */}
+      {/* ---------- Thanh điều hướng đáy: Lịch sử · Cài đặt · [＋ Ghi đo] · Thông báo · Đăng xuất ---------- */}
       <BottomNav
         onOpenHistory={handleOpenHistory}
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenPre={() => setPreOpen(true)}
         onOpenPost={() => setPostOpen(true)}
+        onOpenNotifications={() => setNotifOpen(true)}
+        notifUnread={notifUnread}
         onLogout={handleLogout}
+      />
+
+      <NotificationSheet
+        open={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        onChanged={() => setNotifRefresh((k) => k + 1)}
       />
 
       {/* ---------- Sheets ---------- */}
