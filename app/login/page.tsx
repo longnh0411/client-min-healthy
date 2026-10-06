@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
 import { signInWithGoogle, resolveGoogleRedirect, friendlyAuthError } from "@/lib/firebase";
 import { ApiError, googleLogin as apiGoogleLogin } from "@/lib/api";
 import { IconBell, IconDrop, IconTrend } from "@/components/icons";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [terms, setTerms] = useState(false);
@@ -28,15 +26,24 @@ export default function LoginPage() {
 
   const finishLogin = () => {
     const from = new URLSearchParams(window.location.search).get("from");
-    window.location.assign(from && from.startsWith("/") ? from : "/");
+    // replace (không phải assign) — bỏ /login khỏi history để Back không quay lại đây
+    window.location.replace(from && from.startsWith("/") ? from : "/");
   };
 
-  // Chưa login mà vẫn còn phiên Firebase redirect (popup bị chặn lần trước) → xử lý nốt
+  // Đã login mà vẫn còn phiên Firebase redirect (popup bị chặn lần trước) → xử lý nốt
   useEffect(() => {
-    if (isLoggedIn()) {
-      router.replace("/");
-      return;
-    }
+    const check = () => {
+      if (isLoggedIn()) window.location.replace("/");
+    };
+    check();
+    // Back/forward có thể khôi phục trang từ bfcache — JS không chạy lại,
+    // phải re-check qua pageshow để không hiện trang login cho người đã login
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) check();
+    };
+    window.addEventListener("pageshow", onPageShow);
+    if (isLoggedIn()) return () => window.removeEventListener("pageshow", onPageShow);
+
     resolveGoogleRedirect()
       .then((idToken) => {
         if (!idToken) return;
@@ -48,7 +55,9 @@ export default function LoginPage() {
         setError(e instanceof ApiError ? e.message : friendlyAuthError(e));
         setLoading(false);
       });
-  }, [router]);
+    return () => window.removeEventListener("pageshow", onPageShow);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleGoogle = async () => {
     if (!terms) {
