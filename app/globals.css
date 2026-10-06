@@ -97,6 +97,33 @@ body {
   font-family: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* Nền html khớp body — overscroll (giật cao su macOS/Android) không lộ sọc khác màu */
+html {
+  background-color: var(--bg);
+}
+/* Login nền riêng (#090D16 dark) → html cũng khớp theo */
+html:has(.login-page) {
+  background: var(--bg);
+}
+.dark html:has(.login-page) {
+  background: #090d16;
+}
+
+/* ---------- Toast kiểu Android (snackbar) ---------- */
+@keyframes toast-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.toast-pop {
+  animation: toast-pop 0.22s ease-out;
+}
+
 /* ---------- Focus visible toàn cục (a11y bàn phím) ---------- */
 :focus-visible {
   outline: 2px solid var(--primary);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
 import { signInWithGoogle, resolveGoogleRedirect, friendlyAuthError } from "@/lib/firebase";
@@ -12,6 +12,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [terms, setTerms] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /** Toast kiểu Android: hiện ngắn rồi tự ẩn */
+  const showToast = (msg: string) => {
+    setToast(msg);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2800);
+  };
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
   const finishLogin = () => {
     const from = new URLSearchParams(window.location.search).get("from");
@@ -38,6 +51,10 @@ export default function LoginPage() {
   }, [router]);
 
   const handleGoogle = async () => {
+    if (!terms) {
+      showToast("Bạn cần tick đồng ý Điều khoản & Chính sách bảo mật trước nhé");
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
@@ -62,8 +79,10 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative flex min-h-dvh select-none justify-center bg-bg dark:bg-[#090D16]">
-      <div className="relative flex w-full max-w-[412px] flex-col overflow-hidden bg-bg shadow-2xl dark:border-x dark:border-slate-800/80 dark:bg-[#0F172A]">
+    /* Cố định đúng 1 màn hình (h-dvh): nội dung vừa → không cuộn; thiếu chỗ thì
+       cuộn bên trong cột 412px — không bao giờ lộ sọc nền khác màu ở đuôi trang */
+    <main className="login-page relative flex h-dvh select-none justify-center overflow-hidden bg-bg dark:bg-[#090D16]">
+      <div className="relative flex h-full w-full max-w-[412px] flex-col overflow-y-auto bg-bg shadow-2xl dark:border-x dark:border-slate-800/80 dark:bg-[#0F172A]">
         {/* ---------- Vệt gradient ambient: hồng / mint / container (design system) ---------- */}
         <div aria-hidden className="blob-rose pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" />
         <div aria-hidden className="blob-mint pointer-events-none absolute -left-28 top-1/3 h-80 w-80 rounded-full blur-3xl" />
@@ -111,11 +130,11 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ---------- Đăng nhập Google (sau khi đồng ý điều khoản) ---------- */}
+          {/* ---------- Đăng nhập Google (nhắc tick điều khoản bằng toast nếu bỏ qua) ---------- */}
           <div className="mt-6 w-full space-y-4">
             <button
               onClick={handleGoogle}
-              disabled={loading || !terms}
+              disabled={loading}
               className="flex h-14 w-full items-center justify-center gap-3.5 rounded-lg border border-line/70 bg-card text-ink shadow-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-transparent dark:bg-[#F8FAFC] dark:text-slate-900 dark:shadow-lg dark:hover:bg-white"
             >
               {loading ? (
@@ -166,6 +185,13 @@ export default function LoginPage() {
           </div>
         </main>
       </div>
+
+      {/* ---------- Toast kiểu Android ---------- */}
+      {toast && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-10 z-50 flex justify-center px-5">
+          <span className="toast-pop rounded-full bg-[#323232] px-4 py-2.5 text-center text-sm text-white shadow-lg">{toast}</span>
+        </div>
+      )}
     </main>
   );
 }
