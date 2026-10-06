@@ -134,6 +134,36 @@ export function IconPlus(props: IconProps) {
   );
 }
 
+/** Đường xu hướng (biểu đồ) */
+export function IconTrend(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3 3v18h18" />
+      <path d="m19 9-5 5-4-4-3 3" />
+    </Svg>
+  );
+}
+
+/** Chuông thông báo */
+export function IconBell(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </Svg>
+  );
+}
+
+/** Khiên có dấu tích (bảo mật) */
+export function IconShieldCheck(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </Svg>
+  );
+}
+
 /** Logo thương hiệu: giọt gradient hồng hồng cầu (DESIGN.md secondary) */
 export function DropMark({ size = 20 }: { size?: number }) {
   return (
