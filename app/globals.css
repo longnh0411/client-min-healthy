@@ -101,12 +101,13 @@ body {
 html {
   background-color: var(--bg);
 }
-/* Login nền riêng (#090D16 dark) → html cũng khớp theo */
+/* Login nền riêng → html cũng khớp theo (dark = #0F172A đồng nhất với canvas,
+   không còn 2 dải đậm hai bên khi màn hình rộng hơn 412px) */
 html:has(.login-page) {
   background: var(--bg);
 }
 .dark html:has(.login-page) {
-  background: #090d16;
+  background: #0f172a;
 }
 
 /* ---------- Toast kiểu Android (snackbar) ---------- */
