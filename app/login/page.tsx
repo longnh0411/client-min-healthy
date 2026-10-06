@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
 import { signInWithGoogle, resolveGoogleRedirect } from "@/lib/firebase";
 import { ApiError, googleLogin as apiGoogleLogin } from "@/lib/api";
+import { DropMark } from "@/components/icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,20 +56,18 @@ export default function LoginPage() {
 
   return (
     <main className="login-grid relative flex min-h-screen flex-col items-center justify-center px-5">
-      <div className="login-card w-full max-w-sm rounded-2xl border border-line bg-panel p-7 shadow-sm">
-        <div className="mb-1 text-center text-5xl">🩸</div>
-        <h1 className="mb-1 text-center text-2xl font-bold">Ngọt vừa thui</h1>
+      <div className="login-card w-full max-w-sm rounded-lg border border-line bg-card p-7 shadow-lg">
+        <div className="mb-2 flex justify-center">
+          <DropMark size={48} />
+        </div>
+        <h1 className="mb-1 text-center text-display font-bold tracking-tight">Ngọt vừa thui</h1>
         <p className="mb-6 text-center text-sm text-muted">
           Sổ tay đường huyết — ghi đo trước/sau bữa ăn, hiểu con số của mình.
         </p>
 
-        <button
-          onClick={handleGoogle}
-          disabled={loading}
-          className="flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-line bg-bg px-4 text-base font-semibold transition hover:border-accent hover:text-accent disabled:opacity-60"
-        >
+        <button onClick={handleGoogle} disabled={loading} className="btn-secondary w-full">
           {loading ? (
-            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           ) : (
             <GoogleMark />
           )}
@@ -76,15 +75,15 @@ export default function LoginPage() {
         </button>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-neg/40 bg-neg/10 px-3 py-2 text-sm text-neg" role="alert">
+          <div className="form-error mt-4" role="alert">
             {error}
           </div>
         )}
       </div>
 
       <p className="mt-6 max-w-sm text-center text-xs leading-5 text-faint">
-        Ứng dụng chỉ để theo dõi, không thay thế tư vấn y tế. Hãy đối chiếu ngưỡng đường huyết
-        với chỉ định của bác sĩ điều trị.
+        Ứng dụng chỉ để theo dõi, không thay thế tư vấn y tế. Hãy đối chiếu ngưỡng đường huyết với chỉ định của bác sĩ
+        điều trị.
       </p>
     </main>
   );

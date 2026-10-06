@@ -2,12 +2,13 @@
 
 // Sheet "Đo sau ăn": gắn vào bữa gần nhất CHƯA có số đo sau ăn (đổi được trong
 // 5 bữa gần nhất), số đo + thời gian mặc định "bây giờ" kèm nhãn "sau ăn X phút".
+// Chip chọn bữa kèm giờ để phân biệt khi trùng loại bữa.
 import { useState } from "react";
 import BottomSheet from "./BottomSheet";
 import { updateMeal } from "@/lib/api";
 import { validateReadingValue, isDangerReading, isSuspiciousJump, minutesAfterMeal } from "@/lib/glucose";
 import { MEAL_TYPE_LABELS, type Meal } from "@/lib/types";
-import { toDatetimeLocal, fromDatetimeLocal, fmtDuration } from "@/lib/format";
+import { toDatetimeLocal, fromDatetimeLocal, fmtDuration, fmtTime } from "@/lib/format";
 
 interface PostMealSheetProps {
   open: boolean;
@@ -75,24 +76,21 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
     <BottomSheet open={open} title="Đo sau ăn" onClose={onClose}>
       <div className="space-y-4">
         {recentMeals.length === 0 ? (
-          <p className="text-sm text-muted">
-            Chưa có bữa ăn nào. Hãy bấm “Đo trước ăn” để ghi bữa trước đã.
-          </p>
+          <p className="text-sm text-muted">Chưa có bữa ăn nào. Hãy bấm “Đo trước ăn” để ghi bữa trước đã.</p>
         ) : (
           <>
             <div>
-              <span className="mb-1 block text-sm font-medium">Gắn vào bữa</span>
+              <span className="mb-1.5 block text-sm font-semibold">Gắn vào bữa</span>
               <div className="flex flex-wrap gap-2">
                 {recentMeals.map((m) => (
                   <button
                     key={m.id}
                     type="button"
+                    className={`pick ${m.post ? "opacity-50" : ""}`}
+                    data-on={(mealId ?? defaultMeal?.id) === m.id}
                     onClick={() => setMealId(m.id)}
-                    className={`min-h-11 rounded-xl border px-3 text-sm font-medium transition ${
-                      (mealId ?? defaultMeal?.id) === m.id ? "border-accent bg-accent-soft text-accent" : "border-line hover:border-accent"
-                    } ${m.post ? "opacity-50" : ""}`}
                   >
-                    {MEAL_TYPE_LABELS[m.mealType]}
+                    {MEAL_TYPE_LABELS[m.mealType]} · {fmtTime(m.eatenAt)}
                     {m.post ? " ✓" : ""}
                   </button>
                 ))}
@@ -100,7 +98,7 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
             </div>
 
             <div>
-              <label htmlFor="post-value" className="mb-1 block text-sm font-medium">
+              <label htmlFor="post-value" className="mb-1 block text-sm font-semibold">
                 Số đo đường huyết (mg/dL)
               </label>
               <input
@@ -114,13 +112,13 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
                   setError(null);
                   setConfirmJump(false);
                 }}
-                className="reading-value w-full rounded-xl border border-line bg-panel px-4 py-3 outline-none focus:border-accent"
+                className="field reading-value !py-2.5"
                 autoFocus
               />
             </div>
 
             <div>
-              <label htmlFor="post-time" className="mb-1 block text-sm font-medium">
+              <label htmlFor="post-time" className="mb-1 block text-sm font-semibold">
                 Thời gian đo
               </label>
               <input
@@ -128,7 +126,7 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
                 type="datetime-local"
                 value={measuredAt}
                 onChange={(e) => setMeasuredAt(e.target.value)}
-                className="min-h-11 w-full rounded-xl border border-line bg-panel px-3 text-base outline-none focus:border-accent"
+                className="field"
               />
               {selected && (
                 <p className="mt-1 text-xs text-faint">
@@ -140,16 +138,12 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
             </div>
 
             {error && (
-              <div className="rounded-lg border px-3 py-2 text-sm" role="alert" style={{ borderColor: "color-mix(in srgb, var(--neg) 40%, transparent)", background: "color-mix(in srgb, var(--neg) 8%, transparent)", color: "var(--neg)" }}>
+              <div className="form-error" role="alert">
                 {error}
               </div>
             )}
 
-            <button
-              onClick={submit}
-              disabled={saving || !selected}
-              className="min-h-12 w-full rounded-xl bg-accent text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-            >
+            <button onClick={submit} disabled={saving || !selected} className="btn-primary w-full">
               {saving ? "Đang lưu…" : "Lưu số đo"}
             </button>
           </>

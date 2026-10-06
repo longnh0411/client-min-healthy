@@ -41,11 +41,11 @@ export function classifyReading(
 
 /** Chip trạng thái: chữ + màu (không dựa vào màu một mình — có chữ rõ ràng). */
 export const STATUS_META: Record<StatusLevel, { label: string; chip: string; dot: string }> = {
-  low: { label: "Thấp", chip: "chip-low", dot: "var(--neg)" },
-  slightly_low: { label: "Hơi thấp", chip: "chip-slightly-low", dot: "var(--amber)" },
-  in_target: { label: "Trong mục tiêu", chip: "chip-in-target", dot: "var(--pos)" },
-  high: { label: "Cao", chip: "chip-high", dot: "var(--amber)" },
-  very_high: { label: "Rất cao", chip: "chip-very-high", dot: "var(--neg)" },
+  low: { label: "Thấp", chip: "chip-low", dot: "var(--rose)" },
+  slightly_low: { label: "Hơi thấp", chip: "chip-slightly-low", dot: "var(--warn)" },
+  in_target: { label: "Trong mục tiêu", chip: "chip-in-target", dot: "var(--primary-strong)" },
+  high: { label: "Cao", chip: "chip-high", dot: "var(--rose-strong)" },
+  very_high: { label: "Rất cao", chip: "chip-very-high", dot: "var(--rose)" },
 };
 
 /**
@@ -130,4 +130,47 @@ export function guessMealType(now: Date = new Date()): MealType {
   if (h < 15) return "lunch";
   if (h < 21) return "dinner";
   return "snack";
+}
+
+/** Time in Range: đếm số đo theo 3 nhóm — thấp (low + slightly_low), trong mục tiêu, cao (high + very_high). */
+export interface TirBreakdown {
+  low: number;
+  inRange: number;
+  high: number;
+  total: number;
+}
+
+export function timeInRange(
+  readings: { value: number; kind: ReadingKind }[],
+  t: GlucoseThresholds = DEFAULT_THRESHOLDS,
+): TirBreakdown {
+  const b: TirBreakdown = { low: 0, inRange: 0, high: 0, total: readings.length };
+  for (const r of readings) {
+    const level = classifyReading(r.value, r.kind, t);
+    if (level === "in_target") b.inRange++;
+    else if (level === "low" || level === "slightly_low") b.low++;
+    else b.high++;
+  }
+  return b;
+}
+
+/** Số đo cùng loại gần nhất TRƯỚC mốc `beforeIso` — để tính xu hướng ↗/→/↘ trên thẻ trạng thái. */
+export function previousReading(
+  meals: Meal[],
+  kind: ReadingKind,
+  beforeIso: string,
+): { value: number; measuredAt: string } | null {
+  const at = new Date(beforeIso).getTime();
+  let best: { value: number; measuredAt: string } | null = null;
+  let bestT = -Infinity;
+  for (const m of meals) {
+    const r = kind === "pre" ? m.pre : m.post;
+    if (!r) continue;
+    const rt = new Date(r.measuredAt).getTime();
+    if (rt < at && rt > bestT) {
+      bestT = rt;
+      best = r;
+    }
+  }
+  return best;
 }

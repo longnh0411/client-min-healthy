@@ -25,13 +25,29 @@ const THRESHOLD_FIELDS: { key: keyof GlucoseThresholds; label: string; hint: str
   { key: "veryHigh", label: "Rất cao ≥", hint: "mg/dL — hiện cảnh báo an toàn" },
 ];
 
-export default function SettingsSheet({
-  open,
-  settings,
-  notificationsEnabled,
-  onClose,
-  onSaved,
-}: SettingsSheetProps) {
+/** Toggle switch (selection control của design system: 24px vùng chạm, track mint khi bật) */
+function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 flex-none rounded-full border transition ${
+        checked ? "border-primary bg-primary" : "border-line bg-card-2"
+      }`}
+    >
+      <span
+        className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full transition-all ${
+          checked ? "left-[calc(100%-1.25rem)] bg-on-primary" : "left-1 bg-faint"
+        }`}
+      />
+    </button>
+  );
+}
+
+export default function SettingsSheet({ open, settings, notificationsEnabled, onClose, onSaved }: SettingsSheetProps) {
   const [thresholds, setThresholds] = useState<GlucoseThresholds>(DEFAULT_THRESHOLDS);
   const [reminders, setReminders] = useState<GlucoseReminder[]>([]);
   const [notifOn, setNotifOn] = useState(notificationsEnabled);
@@ -108,9 +124,7 @@ export default function SettingsSheet({
         {/* ---------- Ngưỡng phân loại ---------- */}
         <section>
           <h3 className="mb-1 text-sm font-bold">Ngưỡng đường huyết (mg/dL)</h3>
-          <p className="mb-3 text-xs text-faint">
-            Mặc định tham khảo ADA — hãy chỉnh theo chỉ định của bác sĩ điều trị.
-          </p>
+          <p className="mb-3 text-xs text-faint">Mặc định tham khảo ADA — hãy chỉnh theo chỉ định của bác sĩ điều trị.</p>
           <div className="space-y-2.5">
             {THRESHOLD_FIELDS.map((f) => (
               <div key={f.key} className="flex items-center gap-3">
@@ -124,7 +138,7 @@ export default function SettingsSheet({
                   inputMode="numeric"
                   value={thresholds[f.key]}
                   onChange={(e) => setField(f.key, e.target.value)}
-                  className="min-h-11 w-24 rounded-xl border border-line bg-panel px-3 text-center text-base outline-none focus:border-accent"
+                  className="field !w-24 text-center"
                 />
               </div>
             ))}
@@ -133,36 +147,34 @@ export default function SettingsSheet({
 
         {/* ---------- Nhắc nhở đo ---------- */}
         <section>
-          <div className="mb-1 flex items-center justify-between">
+          <div className="mb-1 flex items-center justify-between gap-2">
             <h3 className="text-sm font-bold">Nhắc nhở đo</h3>
             <button
               onClick={toggleNotifications}
-              className={`min-h-9 rounded-full border px-3 text-xs font-semibold transition ${
-                notifOn ? "border-accent bg-accent-soft text-accent" : "border-line text-muted hover:border-accent"
+              className={`inline-flex min-h-9 items-center rounded-full border-[1.5px] px-3 text-xs font-bold transition ${
+                notifOn ? "border-primary bg-primary-soft text-primary" : "border-line text-muted hover:border-primary"
               }`}
             >
               {notifOn ? "🔔 Đang bật" : "🔕 Bật thông báo"}
             </button>
           </div>
-          <p className="mb-3 text-xs text-faint">
-            Bật thông báo để nhận push nhắc đo đúng giờ bạn đặt (tối đa 6 mốc).
-          </p>
+          <p className="mb-3 text-xs text-faint">Bật thông báo để nhận push nhắc đo đúng giờ bạn đặt (tối đa 6 mốc).</p>
 
           <div className="space-y-2">
             {reminders.map((r, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-xl border border-line px-3 py-2">
+              <div key={i} className="flex items-center gap-2 rounded-md border border-line px-3 py-2">
                 <input
                   aria-label="Giờ nhắc"
                   type="time"
                   value={r.time}
                   onChange={(e) => updateReminder(i, { time: e.target.value })}
-                  className="min-h-10 rounded-lg border border-line bg-panel px-2 text-sm outline-none focus:border-accent"
+                  className="field !min-h-10 !w-[6.2rem] !px-2 !text-sm"
                 />
                 <select
                   aria-label="Loại nhắc"
                   value={r.kind}
                   onChange={(e) => updateReminder(i, { kind: e.target.value as ReminderKind })}
-                  className="min-h-10 flex-1 rounded-lg border border-line bg-panel px-2 text-sm outline-none focus:border-accent"
+                  className="field !min-h-10 flex-1 !px-2 !text-sm"
                 >
                   {(Object.keys(REMINDER_KIND_LABELS) as ReminderKind[]).map((k) => (
                     <option key={k} value={k}>
@@ -170,18 +182,11 @@ export default function SettingsSheet({
                     </option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={() => updateReminder(i, { enabled: !r.enabled })}
-                  className={`min-h-10 rounded-lg px-2 text-sm transition ${r.enabled ? "text-accent" : "text-faint"}`}
-                  aria-label={r.enabled ? "Tắt mốc này" : "Bật mốc này"}
-                >
-                  {r.enabled ? "Bật" : "Tắt"}
-                </button>
+                <Switch checked={r.enabled} onChange={(v) => updateReminder(i, { enabled: v })} label={`Bật mốc nhắc ${r.time}`} />
                 <button
                   type="button"
                   onClick={() => removeReminder(i)}
-                  className="min-h-10 min-w-9 rounded-lg text-muted transition hover:text-neg"
+                  className="inline-flex h-10 w-9 flex-none items-center justify-center rounded-md text-muted transition hover:text-rose"
                   aria-label="Xoá mốc này"
                 >
                   ✕
@@ -193,7 +198,7 @@ export default function SettingsSheet({
           {reminders.length < 6 && (
             <button
               onClick={addReminder}
-              className="mt-2 min-h-10 w-full rounded-xl border border-dashed border-line text-sm text-muted transition hover:border-accent hover:text-accent"
+              className="mt-2 min-h-10 w-full rounded-full border-[1.5px] border-dashed border-line text-sm text-muted transition hover:border-primary hover:text-primary"
             >
               + Thêm mốc nhắc
             </button>
@@ -201,16 +206,12 @@ export default function SettingsSheet({
         </section>
 
         {error && (
-          <div className="rounded-lg border px-3 py-2 text-sm" role="alert" style={{ borderColor: "color-mix(in srgb, var(--neg) 40%, transparent)", background: "color-mix(in srgb, var(--neg) 8%, transparent)", color: "var(--neg)" }}>
+          <div className="form-error" role="alert">
             {error}
           </div>
         )}
 
-        <button
-          onClick={save}
-          disabled={saving}
-          className="min-h-12 w-full rounded-xl bg-accent text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-        >
+        <button onClick={save} disabled={saving} className="btn-primary w-full">
           {saving ? "Đang lưu…" : "Lưu cài đặt"}
         </button>
       </div>

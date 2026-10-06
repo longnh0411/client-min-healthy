@@ -1,61 +1,103 @@
 @import "tailwindcss";
 
-/* Palette sức khoẻ — light mặc định, .dark ghi đè (toggle qua class trên <html>) */
+/* ============================================================
+   Design system "Ngọt vừa thui" (DESIGN.md)
+   - Màu/typography/radius: khối token frontmatter DESIGN.md
+     (surface lạnh #f8f9ff, primary mint #006948, secondary hồng
+     hồng cầu #b90538). Dark mode dẫn xuất từ các token inverse / fixed.
+   - --warn: token mở rộng cho trạng thái "Hơi thấp" (màu giữa
+     mint/rose trong phổ 2 cực của design system).
+   ============================================================ */
 :root {
-  --bg: #ffffff;
-  --panel: #f5f9f7;
-  --panel2: #eaf2ee;
-  --line: #d6e2dc;
-  --ink: #1c2a24;
-  --muted: #5b6f66;
-  --faint: #8ca096;
-  --pos: #177245;
-  --neg: #c62828;
-  --amber: #a05a00;
-  --blue: #1565c0;
-  --accent: #0e7a5f;
-  --accent-soft: #e0f2ec;
-  --scrollbar-thumb: #c4d4cc;
+  --bg: #f8f9ff;                    /* background */
+  --card: #ffffff;                  /* surface-container-lowest */
+  --card-2: #eff4ff;                /* surface-container-low — wash/hover */
+  --line: #bccac0;                  /* outline-variant — viền cấu trúc */
+  --ink: #0d1c2e;                   /* on-surface */
+  --muted: #3d4a42;                 /* on-surface-variant */
+  --faint: #6d7a72;                 /* outline — text phụ/mờ */
+  --primary: #006948;
+  --on-primary: #ffffff;
+  --primary-strong: #00855d;        /* primary-container — hover/graph vector */
+  --primary-soft: color-mix(in srgb, var(--primary) 9%, #ffffff);
+  --rose: #b90538;
+  --rose-strong: #dc2c4f;
+  --rose-soft: color-mix(in srgb, var(--rose) 8%, #ffffff);
+  --warn: #a05a00;
+  --error: #ba1a1a;
+  --scrollbar-thumb: #c6d2e6;
   color-scheme: light;
 }
 
 .dark {
-  --bg: #0b1210;
-  --panel: #121c18;
-  --panel2: #0e1714;
-  --line: #1f2f28;
-  --ink: #e4efe9;
-  --muted: #8fa79c;
-  --faint: #5e7268;
-  --pos: #4ade80;
-  --neg: #f87171;
-  --amber: #fbbf24;
-  --blue: #60a5fa;
-  --accent: #34d399;
-  --accent-soft: #10312a;
-  --scrollbar-thumb: #2a3b34;
+  --bg: #0e1626;
+  --card: #182236;
+  --card-2: #121c30;
+  --line: #2b3a52;
+  --ink: #eaf1ff;                   /* inverse-on-surface */
+  --muted: #9fb1c7;
+  --faint: #64788f;
+  --primary: #68dba9;               /* inverse-primary */
+  --on-primary: #002114;            /* on-primary-fixed */
+  --primary-strong: #85f8c4;        /* primary-fixed */
+  --primary-soft: color-mix(in srgb, var(--primary) 14%, #0e1626);
+  --rose: #ffb2b7;                  /* secondary-fixed-dim */
+  --rose-strong: #ff8a94;
+  --rose-soft: color-mix(in srgb, var(--rose) 10%, #0e1626);
+  --warn: #fbbf24;
+  --error: #ffb4ab;
+  --scrollbar-thumb: #2b3a52;
   color-scheme: dark;
 }
 
 @theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
   --color-bg: var(--bg);
-  --color-panel: var(--panel);
-  --color-panel2: var(--panel2);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
   --color-line: var(--line);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
-  --color-pos: var(--pos);
-  --color-neg: var(--neg);
-  --color-amber: var(--amber);
-  --color-blue: var(--blue);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-rose: var(--rose);
+  --color-rose-strong: var(--rose-strong);
+  --color-rose-soft: var(--rose-soft);
+  --color-warn: var(--warn);
+  --color-error: var(--error);
+
+  /* Radius theo DESIGN.md: md=12px (input), lg=16px (card), xl=24px */
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Bóng ambient màu (không đen) — chỉ cho phần tử nâng */
+  --shadow-ambient: 0 4px 20px -2px rgb(0 105 72 / 0.1);
+  --shadow-ambient-rose: 0 4px 20px -2px rgb(185 5 56 / 0.14);
+
+  /* Vai trò chữ: metric-huge cho số đo, display cho tiêu đề lớn */
+  --text-metric: 3rem;
+  --text-metric--line-height: 1.08;
+  --text-metric--letter-spacing: -0.03em;
+  --text-display: 2rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---------- Focus visible toàn cục (a11y bàn phím) ---------- */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 /* ---------- Scrollbar ---------- */
@@ -88,45 +130,260 @@ body {
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 4px 9px;
   border-radius: 999px;
   border: 1px solid;
   white-space: nowrap;
 }
 .chip::before {
   content: "";
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 999px;
   background: currentColor;
 }
 .chip-low {
-  color: var(--neg);
-  border-color: color-mix(in srgb, var(--neg) 40%, transparent);
-  background: color-mix(in srgb, var(--neg) 10%, transparent);
+  color: var(--rose);
+  border-color: color-mix(in srgb, var(--rose) 40%, transparent);
+  background: var(--rose-soft);
 }
 .chip-slightly-low {
-  color: var(--amber);
-  border-color: color-mix(in srgb, var(--amber) 40%, transparent);
-  background: color-mix(in srgb, var(--amber) 10%, transparent);
+  color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
 }
 .chip-in-target {
-  color: var(--pos);
-  border-color: color-mix(in srgb, var(--pos) 40%, transparent);
-  background: color-mix(in srgb, var(--pos) 10%, transparent);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  background: var(--primary-soft);
 }
 .chip-high {
-  color: var(--amber);
-  border-color: color-mix(in srgb, var(--amber) 40%, transparent);
-  background: color-mix(in srgb, var(--amber) 12%, transparent);
+  color: var(--rose-strong);
+  border-color: color-mix(in srgb, var(--rose-strong) 40%, transparent);
+  background: var(--rose-soft);
 }
 .chip-very-high {
   color: #ffffff;
-  border-color: var(--neg);
-  background: var(--neg);
+  border-color: var(--rose-strong);
+  background: var(--rose-strong);
 }
 .dark .chip-very-high {
-  color: #0b1210;
+  color: #40000d;
+}
+
+/* ---------- Nhãn vai trò label-caps (11/700/.05em) ---------- */
+.label-caps {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ---------- Số đo lớn (metric-huge 48/800, a1c 28/700) ---------- */
+.reading-value {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.reading-value-xl {
+  font-size: var(--text-metric);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+/* ---------- Input trường form (nền card, viền 1.5px, focus ring mint) ---------- */
+.field {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  padding: 0 0.75rem;
+  font-size: 16px;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+.field::placeholder {
+  color: var(--faint);
+}
+.field:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.field[type="number"]::-webkit-outer-spin-button,
+.field[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.field[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ---------- Nút ---------- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: var(--shadow-ambient);
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+.btn-primary:hover {
+  background: var(--primary-strong);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+}
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.btn-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.btn-secondary:disabled {
+  opacity: 0.55;
+}
+.btn-soft {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 700;
+  transition: filter 0.15s ease;
+}
+.btn-soft:hover {
+  filter: brightness(0.97);
+}
+.dark .btn-soft:hover {
+  filter: brightness(1.08);
+}
+.btn-soft:disabled {
+  opacity: 0.55;
+}
+/* Nút icon tròn (ghost) cho header/sheet */
+.btn-ghost-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 999px;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.btn-ghost-icon:hover {
+  background: var(--card-2);
+  color: var(--ink);
+}
+
+/* ---------- Segmented control (7/14/30 ngày, 30/60/90) ---------- */
+.segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--card-2);
+}
+.segmented > button {
+  min-height: 1.75rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.segmented > button:hover {
+  color: var(--ink);
+}
+.segmented > button[aria-pressed="true"] {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 1px 4px rgb(13 28 46 / 0.1);
+}
+
+/* ---------- Chip chọn (loại bữa, gắn bữa sau ăn) — pill, active có dot ---------- */
+.pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.pick:hover {
+  border-color: var(--primary);
+}
+.pick[data-on="true"] {
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.pick[data-on="true"]::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+/* ---------- Hộp lỗi form + banner ---------- */
+.form-error {
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--rose) 35%, transparent);
+  background: var(--rose-soft);
+  color: var(--rose);
+  padding: 0.5rem 0.75rem;
+  font-size: 14px;
+}
+
+/* ---------- Ảnh phần ăn ---------- */
+.meal-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex: none;
 }
 
 /* ---------- Bottom sheet: trượt từ dưới lên ---------- */
@@ -165,12 +422,18 @@ body {
   50% { opacity: 0.45; }
 }
 .skeleton {
-  border-radius: 10px;
-  background: var(--panel2);
+  border-radius: var(--radius-lg);
+  background: var(--card-2);
   animation: skeleton-pulse 1.4s ease-in-out infinite;
 }
 
-/* ---------- Login ---------- */
+/* ---------- Login: nền gradient mint/rose nhẹ ---------- */
+.login-grid {
+  background:
+    radial-gradient(110% 80% at 12% 0%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 60%),
+    radial-gradient(100% 70% at 92% 100%, color-mix(in srgb, var(--rose) 7%, transparent), transparent 55%),
+    var(--bg);
+}
 @keyframes login-card-in {
   from { opacity: 0; transform: translateY(18px) scale(0.98); }
   to { opacity: 1; transform: none; }
@@ -179,26 +442,14 @@ body {
   animation: login-card-in 0.4s cubic-bezier(0.2, 0.8, 0.3, 1.1);
 }
 
-/* ---------- Số đo lớn (a11y: ≥28px) ---------- */
-.reading-value {
-  font-size: 28px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-}
-.reading-value-xl {
-  font-size: 44px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.05;
-}
-
-/* Ảnh phần ăn trong thẻ bữa ăn */
-.meal-photo {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid var(--line);
-  flex: none;
+/* ---------- Tôn trọng prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .sheet-backdrop,
+  .sheet-panel,
+  .sheet-closing .sheet-backdrop,
+  .sheet-closing .sheet-panel,
+  .login-card,
+  .skeleton {
+    animation: none !important;
+  }
 }

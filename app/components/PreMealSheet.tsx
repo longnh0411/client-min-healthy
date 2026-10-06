@@ -5,6 +5,7 @@
 // Ngay khi nhập số đo, hiện thẻ "Bữa trước" làm ngữ cảnh (plan.md §3.1/§5.3).
 import { useMemo, useState } from "react";
 import BottomSheet from "./BottomSheet";
+import { IconCamera, IconX } from "./icons";
 import { createMeal } from "@/lib/api";
 import { uploadMealPhoto } from "@/lib/upload";
 import {
@@ -120,7 +121,7 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
     <BottomSheet open={open} title="Đo trước ăn" onClose={onClose}>
       <div className="space-y-4">
         <div>
-          <label htmlFor="pre-value" className="mb-1 block text-sm font-medium">
+          <label htmlFor="pre-value" className="mb-1 block text-sm font-semibold">
             Số đo đường huyết (mg/dL)
           </label>
           <input
@@ -134,23 +135,16 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
               setError(null);
               setConfirmJump(false);
             }}
-            className="reading-value w-full rounded-xl border border-line bg-panel px-4 py-3 outline-none focus:border-accent"
+            className="field reading-value !py-2.5"
             autoFocus
           />
         </div>
 
         <div>
-          <span className="mb-1 block text-sm font-medium">Bữa nào?</span>
+          <span className="mb-1.5 block text-sm font-semibold">Bữa nào?</span>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(MEAL_TYPE_LABELS) as MealType[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setMealType(t)}
-                className={`min-h-11 rounded-xl border px-3 text-sm font-medium transition ${
-                  mealType === t ? "border-accent bg-accent-soft text-accent" : "border-line hover:border-accent"
-                }`}
-              >
+              <button key={t} type="button" className="pick" data-on={mealType === t} onClick={() => setMealType(t)}>
                 {MEAL_TYPE_LABELS[t]}
               </button>
             ))}
@@ -158,7 +152,7 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
         </div>
 
         <div>
-          <label htmlFor="pre-foods" className="mb-1 block text-sm font-medium">
+          <label htmlFor="pre-foods" className="mb-1 block text-sm font-semibold">
             Món ăn (tuỳ chọn)
           </label>
           <input
@@ -167,12 +161,12 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
             placeholder="Cơm, thịt kho, canh…"
             value={foods}
             onChange={(e) => setFoods(e.target.value)}
-            className="min-h-11 w-full rounded-xl border border-line bg-panel px-3 text-base outline-none focus:border-accent"
+            className="field"
           />
         </div>
 
         <div>
-          <label htmlFor="pre-time" className="mb-1 block text-sm font-medium">
+          <label htmlFor="pre-time" className="mb-1 block text-sm font-semibold">
             Thời gian đo
           </label>
           <input
@@ -180,12 +174,12 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
             type="datetime-local"
             value={measuredAt}
             onChange={(e) => setMeasuredAt(e.target.value)}
-            className="min-h-11 w-full rounded-xl border border-line bg-panel px-3 text-base outline-none focus:border-accent"
+            className="field"
           />
         </div>
 
         <div>
-          <span className="mb-1 block text-sm font-medium">Ảnh phần ăn (tuỳ chọn)</span>
+          <span className="mb-1.5 block text-sm font-semibold">Ảnh phần ăn (tuỳ chọn)</span>
           {photoPreview ? (
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -196,14 +190,14 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
                   setPhoto(null);
                   setPhotoPreview(null);
                 }}
-                className="min-h-9 rounded-lg border border-line px-3 text-sm text-muted transition hover:border-neg hover:text-neg"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-full border-[1.5px] border-line px-3 text-sm text-muted transition hover:border-rose hover:text-rose"
               >
-                Xoá ảnh
+                <IconX className="h-4 w-4" /> Xoá ảnh
               </button>
             </div>
           ) : (
-            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-dashed border-line px-4 text-sm text-muted transition hover:border-accent hover:text-accent">
-              📷 Chọn ảnh
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-dashed border-line px-4 text-sm text-muted transition hover:border-primary hover:text-primary">
+              <IconCamera className="h-4.5 w-4.5" /> Chọn ảnh
               <input
                 type="file"
                 accept="image/*"
@@ -217,8 +211,8 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
 
         {/* Ngữ cảnh bữa trước — giúp hiểu con số trước ăn */}
         {prevMeal && (
-          <div className="rounded-xl border border-line bg-panel px-4 py-3 text-sm">
-            <p className="font-medium">
+          <div className="rounded-md bg-card-2 px-4 py-3 text-sm">
+            <p className="font-semibold">
               {fasting ? "⏱ Lúc đói" : `◂ Bữa trước: ${MEAL_TYPE_LABELS[prevMeal.mealType]} ${fmtTime(prevMeal.eatenAt)}`}
             </p>
             <p className="mt-0.5 text-xs text-faint">
@@ -230,16 +224,12 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
         )}
 
         {error && (
-          <div className="rounded-lg border px-3 py-2 text-sm" role="alert" style={{ borderColor: "color-mix(in srgb, var(--neg) 40%, transparent)", background: "color-mix(in srgb, var(--neg) 8%, transparent)", color: "var(--neg)" }}>
+          <div className="form-error" role="alert">
             {error}
           </div>
         )}
 
-        <button
-          onClick={submit}
-          disabled={saving}
-          className="min-h-12 w-full rounded-xl bg-accent text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
-        >
+        <button onClick={submit} disabled={saving} className="btn-primary w-full">
           {saving ? "Đang lưu…" : "Lưu số đo"}
         </button>
       </div>

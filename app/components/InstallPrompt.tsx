@@ -2,7 +2,9 @@
 
 // Gợi ý cài PWA: beforeinstallprompt (Android/Chrome) hoặc hướng dẫn iOS
 // "Thêm vào Màn hình chính". Người dùng tắt thì nhớ vào localStorage.
+// Nền mint wash (#E6F4EA theo DESIGN.md) — banner động viên, không phải cảnh báo.
 import { useEffect, useState } from "react";
+import { IconDownload } from "./icons";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -58,19 +60,25 @@ export default function InstallPrompt() {
   if (!deferred && !showIosHint) return null;
 
   return (
-    <div className="mb-4 flex items-start gap-3 rounded-xl border border-accent/40 bg-accent-soft px-4 py-3 text-sm">
-      <span className="text-lg leading-none">📲</span>
+    <div
+      className="mb-4 flex items-start gap-3 rounded-lg border px-4 py-3 text-sm"
+      style={{
+        borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)",
+        background: "var(--primary-soft)",
+      }}
+    >
+      <IconDownload className="mt-0.5 flex-none text-primary" />
       {deferred ? (
         <div className="flex-1">
           <p className="font-medium">Cài “Ngọt vừa thui” vào máy để mở nhanh hơn?</p>
           <div className="mt-2 flex gap-2">
             <button
               onClick={install}
-              className="min-h-9 rounded-lg bg-accent px-3 text-sm font-semibold text-white transition hover:opacity-90"
+              className="inline-flex min-h-9 items-center rounded-full bg-primary px-4 text-sm font-bold text-on-primary shadow-ambient transition hover:bg-primary-strong"
             >
               Cài ngay
             </button>
-            <button onClick={dismiss} className="min-h-9 rounded-lg px-3 text-sm text-muted transition hover:text-ink">
+            <button onClick={dismiss} className="inline-flex min-h-9 items-center rounded-full px-3 text-sm text-muted transition hover:text-ink">
               Để sau
             </button>
           </div>

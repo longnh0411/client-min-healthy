@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
+// Font design system (DESIGN.md): Plus Jakarta Sans — hỗ trợ subset tiếng Việt
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "🩸 Ngọt vừa thui",
@@ -12,29 +21,28 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/icon-192.png",
-    apple: "/icon-192.png",
+    apple: "/icon-apple-180.png",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0e7a5f" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b1210" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f9ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1626" },
   ],
   width: "device-width",
   initialScale: 1,
 };
 
-// Đặt theme trước khi render để không bị chớp màu (FOUC)
-const themeInit = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}})})();`;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className="antialiased" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-      </head>
-      <body className="min-h-screen">{children}</body>
+    <html lang="vi" className={`${jakarta.variable} antialiased`} suppressHydrationWarning>
+      <body className="min-h-screen">
+        {/* Đặt theme trước khi render để không bị chớp màu (FOUC) — file tĩnh
+            public/theme-init.js, beforeInteractive inject ngoài cây React */}
+        <Script id="theme-init" src="/theme-init.js" strategy="beforeInteractive" />
+        {children}
+      </body>
     </html>
   );
 }

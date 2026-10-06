@@ -10,6 +10,8 @@ import {
   isDangerReading,
   isSuspiciousJump,
   guessMealType,
+  timeInRange,
+  previousReading,
   DEFAULT_THRESHOLDS,
   A1C_MIN_READINGS,
 } from "./glucose";
@@ -195,5 +197,51 @@ describe("guessMealType", () => {
     expect(guessMealType(new Date(2026, 9, 5, 12, 0))).toBe("lunch");
     expect(guessMealType(new Date(2026, 9, 5, 19, 0))).toBe("dinner");
     expect(guessMealType(new Date(2026, 9, 5, 23, 0))).toBe("snack");
+  });
+});
+
+// ---------- timeInRange (thẻ tổng quan — design system) ----------
+describe("timeInRange", () => {
+  it("gom 5 mức phân loại về 3 nhóm: thấp (low+hơi thấp), mục tiêu, cao", () => {
+    const readings = [
+      { value: 65, kind: "pre" as const }, // low
+      { value: 75, kind: "pre" as const }, // slightly_low
+      { value: 100, kind: "pre" as const }, // in_target
+      { value: 200, kind: "post" as const }, // high
+      { value: 260, kind: "post" as const }, // very_high
+    ];
+    expect(timeInRange(readings, T)).toEqual({ low: 2, inRange: 1, high: 2, total: 5 });
+  });
+
+  it("danh sách rỗng → total 0", () => {
+    expect(timeInRange([], T)).toEqual({ low: 0, inRange: 0, high: 0, total: 0 });
+  });
+});
+
+// ---------- previousReading (xu hướng trên thẻ trạng thái) ----------
+describe("previousReading", () => {
+  const meals = [
+    meal("m1", "2026-10-04T02:00:00.000Z", { pre: { value: 110, measuredAt: "2026-10-04T02:00:00.000Z" } }),
+    meal("m2", "2026-10-04T10:00:00.000Z", { post: { value: 180, measuredAt: "2026-10-04T11:30:00.000Z" } }),
+    meal("m3", "2026-10-05T02:00:00.000Z", { pre: { value: 95, measuredAt: "2026-10-05T02:00:00.000Z" } }),
+  ];
+
+  it("lần đo trước cùng loại ngay trước mốc mới nhất", () => {
+    expect(previousReading(meals, "pre", "2026-10-05T02:00:00.000Z")).toEqual({
+      value: 110,
+      measuredAt: "2026-10-04T02:00:00.000Z",
+    });
+  });
+
+  it("post riêng biệt với pre", () => {
+    expect(previousReading(meals, "post", "2026-10-05T02:00:00.000Z")).toEqual({
+      value: 180,
+      measuredAt: "2026-10-04T11:30:00.000Z",
+    });
+  });
+
+  it("không có số đo trước đó → null (kể cả chính mốc đó)", () => {
+    expect(previousReading(meals, "pre", "2026-10-04T02:00:00.000Z")).toBeNull();
+    expect(previousReading([], "pre", "2026-10-05T02:00:00.000Z")).toBeNull();
   });
 });

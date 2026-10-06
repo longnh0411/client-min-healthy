@@ -59,7 +59,7 @@ npm run dev         # dev server
 npm run build       # build production
 npm run lint        # eslint
 npm run test        # vitest (logic nghiệp vụ lib/glucose.ts)
-node scripts/generate-icons.mjs   # sinh lại icon PWA sau khi đổi thiết kế
+node scripts/generate-icons.mjs   # sinh lại icon PWA từ scripts/icon-source.png
 ```
 
 ## Tính năng
