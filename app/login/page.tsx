@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
 import { signInWithGoogle, resolveGoogleRedirect, friendlyAuthError } from "@/lib/firebase";
 import { ApiError, googleLogin as apiGoogleLogin } from "@/lib/api";
-import { IconBell, IconDrop, IconShieldCheck, IconTrend } from "@/components/icons";
+import { IconBell, IconDrop, IconTrend } from "@/components/icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -93,9 +93,9 @@ export default function LoginPage() {
           <div className="blob-dim absolute -bottom-24 right-0 h-64 w-64 rounded-full blur-2xl" />
         </div>
 
-        <main className="z-10 flex flex-1 flex-col justify-between px-5 pb-5 pt-5">
-          {/* ---------- Logo + thương hiệu + 3 thẻ tính năng ---------- */}
-          <div className="flex flex-col items-center text-center">
+        <main className="z-10 flex flex-1 flex-col px-5 pb-5 pt-5">
+          {/* ---------- Logo + thương hiệu + 3 thẻ tính năng — giữa màn hình ---------- */}
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
             <div className="group relative my-1">
               <div aria-hidden className="logo-halo absolute -inset-2 rounded-full blur-md" />
               <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl border border-line/30 bg-card p-2 shadow-sm backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-800/80 dark:shadow-lg">
@@ -152,16 +152,18 @@ export default function LoginPage() {
               </span>
             </button>
 
-            <div className="flex items-start justify-center gap-2.5 px-2 py-1">
-              <input
-                id="terms-checkbox"
-                type="checkbox"
-                checked={terms}
-                onChange={(e) => setTerms(e.target.checked)}
-                className="mt-0.5 h-4 w-4 cursor-pointer accent-primary dark:accent-emerald-400"
-              />
-              <label htmlFor="terms-checkbox" className="cursor-pointer text-xs leading-snug text-muted">
-                Tôi đã đọc và đồng ý với{" "}
+            <div className="flex flex-col items-center gap-1.5 px-2">
+              <label htmlFor="terms-checkbox" className="flex cursor-pointer items-center gap-2">
+                <input
+                  id="terms-checkbox"
+                  type="checkbox"
+                  checked={terms}
+                  onChange={(e) => setTerms(e.target.checked)}
+                  className="h-4 w-4 cursor-pointer accent-primary dark:accent-emerald-400"
+                />
+                <span className="text-xs text-muted">Tôi đã đọc và đồng ý với</span>
+              </label>
+              <p className="text-xs text-muted">
                 <a href="#" className="font-semibold text-primary hover:underline">
                   Điều khoản dịch vụ
                 </a>{" "}
@@ -169,7 +171,7 @@ export default function LoginPage() {
                 <a href="#" className="font-semibold text-primary hover:underline">
                   Chính sách bảo mật
                 </a>
-              </label>
+              </p>
             </div>
 
             {error && (
@@ -178,15 +180,10 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="space-y-1.5 pt-1 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-muted">
-                <IconShieldCheck className="h-4.5 w-4.5 text-primary" />
-                <span className="text-xs font-semibold">Bảo mật y tế &amp; mã hóa dữ liệu 100%</span>
-              </div>
-              <p className="text-[11px] leading-4 text-faint">
-                Ứng dụng chỉ để theo dõi, không thay thế tư vấn y tế.
-              </p>
-            </div>
+            <p className="pt-1 text-center text-[11px] leading-4 text-faint">
+              <span className="align-top text-[9px]">*</span>
+              Ứng dụng chỉ để theo dõi, không thay thế tư vấn y tế.
+            </p>
           </div>
         </main>
       </div>
