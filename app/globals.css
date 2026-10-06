@@ -109,6 +109,11 @@ html:has(.login-page) {
 .dark html:has(.login-page) {
   background: #0f172a;
 }
+/* Chặn mọi cử chỉ cuộn dư trên Android/iOS: pull-to-refresh, giật cao su,
+   thanh địa chỉ co giãn khi người dùng vuốt dù nội dung đã vừa màn hình */
+html:has(.login-page) {
+  overscroll-behavior: none;
+}
 
 /* ---------- Toast kiểu Android (snackbar) ---------- */
 @keyframes toast-pop {
@@ -129,9 +134,20 @@ html:has(.login-page) {
 .login-canvas {
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
+  overscroll-behavior: contain; /* cuộn nội bộ không kéo theo trang ngoài */
 }
 .login-canvas::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
+}
+
+/* ---------- Login: neo cố định toàn màn hình ----------
+   fixed inset-0 thoát khỏi luồng tài liệu → tài liệu không có chiều cao
+   để cuộn, thanh địa chỉ Android không tự ẩn/hiện, vuốt không còn hiệu ứng */
+.login-page {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overscroll-behavior: none;
 }
 
 /* ---------- Focus visible toàn cục (a11y bàn phím) ---------- */

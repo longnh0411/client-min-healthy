@@ -79,9 +79,10 @@ export default function LoginPage() {
   };
 
   return (
-    /* Cố định đúng 1 màn hình (h-dvh): nội dung vừa → không cuộn; thiếu chỗ thì
-       cuộn bên trong cột 412px — không bao giờ lộ sọc nền khác màu ở đuôi trang */
-    <main className="login-page relative flex h-dvh select-none justify-center overflow-hidden bg-bg dark:bg-[#0F172A]">
+    /* Neo cố định toàn màn hình (class .login-page: fixed inset-0) — tài liệu
+       không còn chiều cao để cuộn; nội dung vừa → không cuộn, thiếu chỗ thì
+       cuộn bên trong cột 412px với nền riêng */
+    <main className="login-page flex select-none justify-center overflow-hidden bg-bg dark:bg-[#0F172A]">
       <div className="login-canvas relative flex h-full w-full max-w-[412px] flex-col bg-bg shadow-2xl dark:bg-[#0F172A]">
         {/* ---------- Vệt gradient ambient: hồng / mint / container (design system) ----------
             wrapper overflow-hidden để blob nhô ra ngoài (−bottom-24…) không làm
