@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/session";
-import { signInWithGoogle, resolveGoogleRedirect } from "@/lib/firebase";
+import { signInWithGoogle, resolveGoogleRedirect, friendlyAuthError } from "@/lib/firebase";
 import { ApiError, googleLogin as apiGoogleLogin } from "@/lib/api";
 import { IconBell, IconDrop, IconShieldCheck, IconTrend } from "@/components/icons";
 
@@ -31,7 +31,8 @@ export default function LoginPage() {
         return apiGoogleLogin(idToken).then(finishLogin);
       })
       .catch((e) => {
-        setError(e instanceof ApiError ? e.message : "Đăng nhập thất bại, thử lại nhé");
+        console.error("Đăng nhập Google lỗi:", e); // log gốc cho dev, user chỉ thấy thông điệp thân thiện
+        setError(e instanceof ApiError ? e.message : friendlyAuthError(e));
         setLoading(false);
       });
   }, [router]);
@@ -45,11 +46,16 @@ export default function LoginPage() {
       await apiGoogleLogin(idToken);
       finishLogin();
     } catch (e) {
-      const msg = e instanceof ApiError ? e.message : e instanceof Error ? e.message : null;
-      if (msg?.includes("popup")) {
+      console.error("Đăng nhập Google lỗi:", e);
+      const code = (e as { code?: string })?.code ?? "";
+      const msg = e instanceof Error ? e.message : "";
+      if (code === "auth/popup-blocked" || msg.includes("popup")) {
         setError("Popup bị chặn — đang chuyển hướng, đợi chút nhé…");
+      } else if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+        setError(friendlyAuthError(e));
+        setLoading(false);
       } else {
-        setError(msg || "Đăng nhập thất bại, thử lại nhé");
+        setError(e instanceof ApiError ? e.message : friendlyAuthError(e));
         setLoading(false);
       }
     }
