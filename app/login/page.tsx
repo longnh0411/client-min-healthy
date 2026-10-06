@@ -152,27 +152,25 @@ export default function LoginPage() {
               </span>
             </button>
 
-            <div className="flex justify-center px-2">
-              <label htmlFor="terms-checkbox" className="flex cursor-pointer items-start justify-center gap-2 text-center">
-                <input
-                  id="terms-checkbox"
-                  type="checkbox"
-                  checked={terms}
-                  onChange={(e) => setTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 flex-none cursor-pointer accent-primary dark:accent-emerald-400"
-                />
-                <span className="text-xs leading-snug text-muted">
-                  Tôi đã đọc và đồng ý với{" "}
-                  <a href="#" className="font-semibold text-primary hover:underline">
-                    Điều khoản dịch vụ
-                  </a>{" "}
-                  và{" "}
-                  <a href="#" className="font-semibold text-primary hover:underline">
-                    Chính sách bảo mật
-                  </a>
-                </span>
-              </label>
-            </div>
+            <label htmlFor="terms-checkbox" className="flex cursor-pointer items-start gap-2 px-2">
+              <input
+                id="terms-checkbox"
+                type="checkbox"
+                checked={terms}
+                onChange={(e) => setTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-none cursor-pointer accent-primary dark:accent-emerald-400"
+              />
+              <span className="text-xs leading-snug text-muted">
+                Tôi đã đọc và đồng ý với{" "}
+                <a href="#" className="font-semibold text-primary hover:underline">
+                  Điều khoản dịch vụ
+                </a>{" "}
+                và{" "}
+                <a href="#" className="font-semibold text-primary hover:underline">
+                  Chính sách bảo mật
+                </a>
+              </span>
+            </label>
 
             {error && (
               <div className="form-error select-text" role="alert">
