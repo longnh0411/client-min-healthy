@@ -42,8 +42,8 @@ export default function BottomNav({ onOpenHistory, onOpenSettings, onOpenPre, on
   return (
     <nav aria-label="Điều hướng" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur">
       <div className="mx-auto grid max-w-[680px] grid-cols-5 items-center px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] pt-1.5">
-        {items.slice(0, 2).map((it) => (
-          <NavItem key={it.key} {...it} />
+        {items.slice(0, 2).map(({ key, ...rest }) => (
+          <NavItem key={key} {...rest} />
         ))}
 
         {/* ---------- Nút ghi đo tròn nổi ở giữa (giữa Cài đặt và Giao diện) ---------- */}
@@ -83,8 +83,8 @@ export default function BottomNav({ onOpenHistory, onOpenSettings, onOpenPre, on
           </button>
         </div>
 
-        {items.slice(2).map((it) => (
-          <NavItem key={it.key} {...it} />
+        {items.slice(2).map(({ key, ...rest }) => (
+          <NavItem key={key} {...rest} />
         ))}
       </div>
     </nav>
