@@ -56,46 +56,24 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative flex min-h-dvh select-none justify-center bg-bg">
-      <div className="relative flex w-full max-w-[412px] flex-col overflow-hidden bg-bg shadow-2xl">
+    <main className="relative flex min-h-dvh select-none justify-center bg-bg dark:bg-[#090D16]">
+      <div className="relative flex w-full max-w-[412px] flex-col overflow-hidden bg-bg shadow-2xl dark:border-x dark:border-slate-800/80 dark:bg-[#0F172A]">
         {/* ---------- Vệt gradient ambient: hồng / mint / container (design system) ---------- */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl"
-          style={{ background: "color-mix(in srgb, var(--rose) 16%, transparent)" }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-28 top-1/3 h-80 w-80 rounded-full blur-3xl"
-          style={{ background: "color-mix(in srgb, var(--primary) 12%, transparent)" }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full blur-2xl"
-          style={{ background: "color-mix(in srgb, var(--card-2) 70%, transparent)" }}
-        />
+        <div aria-hidden className="blob-rose pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" />
+        <div aria-hidden className="blob-mint pointer-events-none absolute -left-28 top-1/3 h-80 w-80 rounded-full blur-3xl" />
+        <div aria-hidden className="blob-dim pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full blur-2xl" />
 
         <main className="z-10 flex flex-1 flex-col justify-between px-5 pb-8 pt-12">
           {/* ---------- Logo + thương hiệu + 3 thẻ tính năng ---------- */}
           <div className="flex flex-col items-center text-center">
             <div className="group relative my-3">
-              <div
-                aria-hidden
-                className="absolute -inset-2 rounded-full opacity-70 blur-md"
-                style={{
-                  background:
-                    "linear-gradient(to bottom, color-mix(in srgb, var(--rose) 32%, transparent), color-mix(in srgb, var(--primary) 16%, transparent))",
-                }}
-              />
-              <div
-                className="relative flex h-24 w-24 items-center justify-center rounded-3xl border bg-card p-2 shadow-sm"
-                style={{ borderColor: "color-mix(in srgb, var(--line) 30%, transparent)" }}
-              >
+              <div aria-hidden className="logo-halo absolute -inset-2 rounded-full blur-md" />
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-line/30 bg-card p-2 shadow-sm backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-800/80 dark:shadow-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/icon-192.png"
                   alt="Biểu tượng giọt máu Ngọt vừa thui"
-                  className="h-full w-full rounded-2xl object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
+                  className="h-full w-full rounded-2xl object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105 dark:drop-shadow-md"
                 />
               </div>
             </div>
@@ -120,7 +98,7 @@ export default function LoginPage() {
               />
               <FeatureCard
                 icon={<IconBell className="h-5 w-5" />}
-                tint="neutral"
+                tint="indigo"
                 title="Nhắc đo đúng giờ"
                 desc="Chăm sóc theo nhịp sinh hoạt"
               />
@@ -132,11 +110,10 @@ export default function LoginPage() {
             <button
               onClick={handleGoogle}
               disabled={loading || !terms}
-              className="flex h-14 w-full items-center justify-center gap-3.5 rounded-lg border bg-card px-4 shadow-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ borderColor: "color-mix(in srgb, var(--line) 70%, transparent)" }}
+              className="flex h-14 w-full items-center justify-center gap-3.5 rounded-lg border border-line/70 bg-card text-ink shadow-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-transparent dark:bg-[#F8FAFC] dark:text-slate-900 dark:shadow-lg dark:hover:bg-white"
             >
               {loading ? (
-                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent dark:border-emerald-400 dark:border-t-transparent" />
               ) : (
                 <GoogleMark />
               )}
@@ -145,20 +122,20 @@ export default function LoginPage() {
               </span>
             </button>
 
-            <div className="flex items-center justify-center gap-2 px-2 py-1">
+            <div className="flex items-start justify-center gap-2.5 px-2 py-1">
               <input
                 id="terms-checkbox"
                 type="checkbox"
                 checked={terms}
                 onChange={(e) => setTerms(e.target.checked)}
-                className="h-4 w-4 cursor-pointer accent-primary"
+                className="mt-0.5 h-4 w-4 cursor-pointer accent-primary dark:accent-emerald-400"
               />
-              <label htmlFor="terms-checkbox" className="cursor-pointer text-xs text-muted">
-                Tôi đồng ý với{" "}
+              <label htmlFor="terms-checkbox" className="cursor-pointer text-xs leading-snug text-muted">
+                Tôi đã đọc và đồng ý với{" "}
                 <a href="#" className="font-semibold text-primary hover:underline">
-                  Điều khoản
+                  Điều khoản dịch vụ
                 </a>{" "}
-                &amp;{" "}
+                và{" "}
                 <a href="#" className="font-semibold text-primary hover:underline">
                   Chính sách bảo mật
                 </a>
@@ -187,7 +164,10 @@ export default function LoginPage() {
   );
 }
 
-/** Thẻ tính năng: icon trong ô màu theo tint + tiêu đề + mô tả */
+/**
+ * Thẻ tính năng: icon trong ô màu theo tint + tiêu đề + mô tả.
+ * Dark mode dùng tint đặc biệt theo mockup: rose/emerald/indigo trên nền tối.
+ */
 function FeatureCard({
   icon,
   tint,
@@ -195,27 +175,22 @@ function FeatureCard({
   desc,
 }: {
   icon: ReactNode;
-  tint: "rose" | "mint" | "neutral";
+  tint: "rose" | "mint" | "indigo";
   title: string;
   desc: string;
 }) {
-  const tintStyle =
+  const tintClass =
     tint === "rose"
-      ? { background: "var(--rose-soft)", color: "var(--rose)" }
+      ? "bg-[var(--rose-soft)] text-[var(--rose)] dark:border dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-400"
       : tint === "mint"
-        ? { background: "var(--primary-soft)", color: "var(--primary)" }
-        : { background: "var(--card-2)", color: "var(--muted)" };
+        ? "bg-[var(--primary-soft)] text-[var(--primary)] dark:border dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400"
+        : "bg-[var(--card-2)] text-[var(--muted)] dark:border dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-400";
   return (
-    <div
-      className="flex items-center gap-3.5 rounded-lg border bg-card/80 p-3 shadow-sm"
-      style={{ borderColor: "color-mix(in srgb, var(--line) 30%, transparent)" }}
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={tintStyle}>
-        {icon}
-      </div>
+    <div className="flex items-center gap-3.5 rounded-lg border border-line/30 bg-card/80 p-3 shadow-sm backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/90 dark:p-4">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tintClass}`}>{icon}</div>
       <div className="text-left">
-        <div className="text-sm font-semibold text-ink">{title}</div>
-        <div className="text-xs text-muted">{desc}</div>
+        <div className="text-sm font-semibold text-ink dark:text-slate-100">{title}</div>
+        <div className="text-xs text-muted dark:text-slate-400">{desc}</div>
       </div>
     </div>
   );

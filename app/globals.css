@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dark: variant theo class .dark trên <html> (không phải prefers-color-scheme) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================================
    Design system "Ngọt vừa thui" (DESIGN.md)
    - Màu/typography/radius: khối token frontmatter DESIGN.md
@@ -425,6 +428,38 @@ body {
   border-radius: var(--radius-lg);
   background: var(--card-2);
   animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+/* ---------- Login: vệt gradient ambient + halo logo (light/dark theo mockup) ---------- */
+.blob-rose {
+  background: color-mix(in srgb, var(--rose) 16%, transparent);
+}
+.blob-mint {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+.blob-dim {
+  background: color-mix(in srgb, var(--card-2) 70%, transparent);
+}
+.dark .blob-rose {
+  background: rgb(244 63 94 / 0.1);
+}
+.dark .blob-mint {
+  background: rgb(16 185 129 / 0.15);
+}
+.dark .blob-dim {
+  background: rgb(99 102 241 / 0.1);
+}
+.logo-halo {
+  opacity: 0.7;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--rose) 32%, transparent),
+    color-mix(in srgb, var(--primary) 16%, transparent)
+  );
+}
+.dark .logo-halo {
+  opacity: 0.6;
+  background: linear-gradient(to bottom, rgb(244 63 94 / 0.2), rgb(16 185 129 / 0.2));
 }
 
 /* ---------- Tôn trọng prefers-reduced-motion ---------- */
