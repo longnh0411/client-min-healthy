@@ -82,18 +82,22 @@ export default function LoginPage() {
     /* Cố định đúng 1 màn hình (h-dvh): nội dung vừa → không cuộn; thiếu chỗ thì
        cuộn bên trong cột 412px — không bao giờ lộ sọc nền khác màu ở đuôi trang */
     <main className="login-page relative flex h-dvh select-none justify-center overflow-hidden bg-bg dark:bg-[#090D16]">
-      <div className="relative flex h-full w-full max-w-[412px] flex-col overflow-y-auto bg-bg shadow-2xl dark:border-x dark:border-slate-800/80 dark:bg-[#0F172A]">
-        {/* ---------- Vệt gradient ambient: hồng / mint / container (design system) ---------- */}
-        <div aria-hidden className="blob-rose pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" />
-        <div aria-hidden className="blob-mint pointer-events-none absolute -left-28 top-1/3 h-80 w-80 rounded-full blur-3xl" />
-        <div aria-hidden className="blob-dim pointer-events-none absolute -bottom-24 right-0 h-64 w-64 rounded-full blur-2xl" />
+      <div className="login-canvas relative flex h-full w-full max-w-[412px] flex-col bg-bg shadow-2xl dark:border-x dark:border-slate-800/80 dark:bg-[#0F172A]">
+        {/* ---------- Vệt gradient ambient: hồng / mint / container (design system) ----------
+            wrapper overflow-hidden để blob nhô ra ngoài (−bottom-24…) không làm
+            cột tính nhầm chiều cao cuộn → hiện scrollbar ảo ---------- */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="blob-rose absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl" />
+          <div className="blob-mint absolute -left-28 top-1/3 h-80 w-80 rounded-full blur-3xl" />
+          <div className="blob-dim absolute -bottom-24 right-0 h-64 w-64 rounded-full blur-2xl" />
+        </div>
 
-        <main className="z-10 flex flex-1 flex-col justify-between px-5 pb-8 pt-12">
+        <main className="z-10 flex flex-1 flex-col justify-between px-5 pb-5 pt-5">
           {/* ---------- Logo + thương hiệu + 3 thẻ tính năng ---------- */}
           <div className="flex flex-col items-center text-center">
-            <div className="group relative my-3">
+            <div className="group relative my-1">
               <div aria-hidden className="logo-halo absolute -inset-2 rounded-full blur-md" />
-              <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-line/30 bg-card p-2 shadow-sm backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-800/80 dark:shadow-lg">
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl border border-line/30 bg-card p-2 shadow-sm backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-800/80 dark:shadow-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/icon-192.png"
@@ -103,12 +107,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-4 max-w-[320px] space-y-2">
+            <div className="mt-2 max-w-[320px] space-y-1.5">
               <h1 className="text-display font-extrabold tracking-tight text-primary">Ngọt vừa thui</h1>
               <p className="text-base font-medium leading-relaxed text-muted">Sổ tay ghi chép đường huyết mỗi ngày</p>
             </div>
 
-            <div className="mt-6 w-full max-w-[340px] space-y-2.5">
+            <div className="mt-4 w-full max-w-[340px] space-y-2">
               <FeatureCard
                 icon={<IconDrop className="h-5 w-5" />}
                 tint="rose"
@@ -131,7 +135,7 @@ export default function LoginPage() {
           </div>
 
           {/* ---------- Đăng nhập Google (nhắc tick điều khoản bằng toast nếu bỏ qua) ---------- */}
-          <div className="mt-6 w-full space-y-4">
+          <div className="mt-4 w-full space-y-3.5">
             <button
               onClick={handleGoogle}
               disabled={loading}

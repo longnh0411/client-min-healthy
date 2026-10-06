@@ -124,6 +124,15 @@ html:has(.login-page) {
   animation: toast-pop 0.22s ease-out;
 }
 
+/* ---------- Login: cột cuộn nội bộ không hiện scrollbar ---------- */
+.login-canvas {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+}
+.login-canvas::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 /* ---------- Focus visible toàn cục (a11y bàn phím) ---------- */
 :focus-visible {
   outline: 2px solid var(--primary);
