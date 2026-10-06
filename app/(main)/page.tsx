@@ -20,7 +20,7 @@ import EditMealSheet from "@/components/EditMealSheet";
 import SettingsSheet from "@/components/SettingsSheet";
 import BottomNav from "@/components/BottomNav";
 import NotificationBell from "@/components/NotificationBell";
-import { DropMark, IconDrop, IconPlus, IconUtensils } from "@/components/icons";
+import { DropMark, IconPlus } from "@/components/icons";
 import { dayGroupLabel, dayKey } from "@/lib/format";
 
 // Số bữa tối đa tải cho A1c 90 ngày + biểu đồ + lịch sử (5 trang × 100)
@@ -131,7 +131,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-[680px] px-5 pb-36 sm:px-8">
+    <div className="mx-auto min-h-screen max-w-[680px] px-5 pb-28 sm:px-8">
       <AuthGate />
 
       {/* ---------- Header: thương hiệu + chuông thông báo ---------- */}
@@ -208,23 +208,14 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ---------- Thanh ghi đo nổi — phía trên thanh điều hướng ---------- */}
-      <div
-        className="pointer-events-none fixed inset-x-0 z-40"
-        style={{ bottom: "calc(4.25rem + env(safe-area-inset-bottom))" }}
-      >
-        <div className="mx-auto flex max-w-[680px] gap-3 px-5 sm:px-8">
-          <button onClick={() => setPreOpen(true)} className="btn-primary pointer-events-auto flex-1">
-            <IconDrop className="h-5 w-5" /> Đo trước ăn
-          </button>
-          <button onClick={() => setPostOpen(true)} className="btn-soft pointer-events-auto flex-1">
-            <IconUtensils className="h-5 w-5" /> Đo sau ăn
-          </button>
-        </div>
-      </div>
-
-      {/* ---------- Thanh điều hướng đáy: Lịch sử · Cài đặt · Giao diện · Đăng xuất ---------- */}
-      <BottomNav onOpenHistory={handleOpenHistory} onOpenSettings={() => setSettingsOpen(true)} onLogout={handleLogout} />
+      {/* ---------- Thanh điều hướng đáy: Lịch sử · Cài đặt · [＋ Ghi đo] · Giao diện · Đăng xuất ---------- */}
+      <BottomNav
+        onOpenHistory={handleOpenHistory}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenPre={() => setPreOpen(true)}
+        onOpenPost={() => setPostOpen(true)}
+        onLogout={handleLogout}
+      />
 
       {/* ---------- Sheets ---------- */}
       {settings && (
@@ -252,11 +243,11 @@ export default function HomePage() {
         </>
       )}
 
-      {/* Toast foreground push — phía trên cụm nút ghi đo nổi */}
+      {/* Toast foreground push — phía trên thanh điều hướng */}
       {toast && (
         <div
           className="fixed inset-x-4 z-50 mx-auto max-w-md rounded-lg border border-line bg-card px-4 py-3 text-sm shadow-lg"
-          style={{ bottom: "calc(8.25rem + env(safe-area-inset-bottom))" }}
+          style={{ bottom: "calc(4.75rem + env(safe-area-inset-bottom))" }}
           role="status"
         >
           {toast}
