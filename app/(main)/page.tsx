@@ -8,7 +8,6 @@ import type { SessionUser } from "@/lib/session";
 import { logout, listMeals, getSettings } from "@/lib/api";
 import { syncTokenOnLoad, onForegroundMessage } from "@/lib/notifications";
 import type { Meal, GlucoseSettings } from "@/lib/types";
-import ThemeToggle from "@/components/ThemeToggle";
 import InstallPrompt from "@/components/InstallPrompt";
 import StatusCard from "@/components/StatusCard";
 import A1cCard from "@/components/A1cCard";
@@ -19,7 +18,9 @@ import PreMealSheet from "@/components/PreMealSheet";
 import PostMealSheet from "@/components/PostMealSheet";
 import EditMealSheet from "@/components/EditMealSheet";
 import SettingsSheet from "@/components/SettingsSheet";
-import { DropMark, IconDrop, IconGear, IconKebab, IconLogout, IconPlus, IconUtensils } from "@/components/icons";
+import BottomNav from "@/components/BottomNav";
+import NotificationBell from "@/components/NotificationBell";
+import { DropMark, IconDrop, IconPlus, IconUtensils } from "@/components/icons";
 import { dayGroupLabel, dayKey } from "@/lib/format";
 
 // Số bữa tối đa tải cho A1c 90 ngày + biểu đồ + lịch sử (5 trang × 100)
@@ -34,7 +35,7 @@ export default function HomePage() {
   const [dangerValue, setDangerValue] = useState<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [notifRefresh, setNotifRefresh] = useState(0);
 
   const [preOpen, setPreOpen] = useState(false);
   const [postOpen, setPostOpen] = useState(false);
@@ -83,6 +84,7 @@ export default function HomePage() {
     onForegroundMessage((title, body) => {
       setToast(`${title}: ${body}`);
       setTimeout(() => setToast(null), 5000);
+      setNotifRefresh((k) => k + 1); // push mới đến → chuông reload danh sách
     }).then((un) => {
       unsubMsg = un;
     });
@@ -124,11 +126,15 @@ export default function HomePage() {
     router.refresh();
   };
 
+  const handleOpenHistory = () => {
+    document.getElementById("history")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="mx-auto min-h-screen max-w-[680px] px-5 pb-36 sm:px-8">
       <AuthGate />
 
-      {/* ---------- Header ---------- */}
+      {/* ---------- Header: thương hiệu + chuông thông báo ---------- */}
       <header className="sticky top-0 z-40 -mx-5 mb-5 flex items-center justify-between gap-2 border-b border-line bg-bg/85 px-5 py-3 backdrop-blur sm:-mx-8 sm:px-8">
         <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight">
           <DropMark size={22} />
@@ -137,37 +143,7 @@ export default function HomePage() {
             <span className="ml-1 hidden text-xs font-normal text-faint sm:inline">{user.email}</span>
           )}
         </h1>
-        <div className="flex items-center gap-1">
-          <button onClick={() => setSettingsOpen(true)} className="btn-ghost-icon" aria-label="Cài đặt" title="Cài đặt ngưỡng & nhắc đo">
-            <IconGear />
-          </button>
-          <div className="relative">
-            <button onClick={() => setMenuOpen((v) => !v)} className="btn-ghost-icon" aria-label="Menu" aria-expanded={menuOpen}>
-              <IconKebab />
-            </button>
-            {menuOpen && (
-              <>
-                {/* đám mây trong suốt: bấm ra ngoài → đóng menu */}
-                <button aria-hidden tabIndex={-1} className="fixed inset-0 z-40 cursor-default" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-lg border border-line bg-card shadow-lg">
-                  {user?.email && (
-                    <div className="border-b border-line px-4 py-2.5">
-                      <p className="text-[11px] text-faint">Đang đăng nhập</p>
-                      <p className="truncate text-sm font-medium">{user.email}</p>
-                    </div>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-error transition hover:bg-card-2"
-                  >
-                    <IconLogout className="h-4 w-4" /> Đăng xuất
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-          <ThemeToggle />
-        </div>
+        <NotificationBell refreshKey={notifRefresh} />
       </header>
 
       <InstallPrompt />
@@ -198,8 +174,8 @@ export default function HomePage() {
           <A1cCard meals={meals} thresholds={settings!} />
           <TrendChart meals={meals} thresholds={settings!} />
 
-          {/* ---------- Lịch sử theo ngày ---------- */}
-          <section>
+          {/* ---------- Lịch sử theo ngày (BottomNav cuộn tới đây) ---------- */}
+          <section id="history" className="scroll-mt-16">
             <h2 className="label-caps mb-2 text-faint">Lịch sử</h2>
             {meals.length === 0 ? (
               <div className="rounded-lg border border-dashed border-line px-6 py-10 text-center">
@@ -232,9 +208,12 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ---------- Thanh ghi đo nổi (thumb-friendly, luôn trong tầm tay) ---------- */}
-      <div className="fixed inset-x-0 bottom-0 z-40 pointer-events-none">
-        <div className="mx-auto flex max-w-[680px] gap-3 px-5 pb-[max(0.875rem,env(safe-area-inset-bottom))] sm:px-8">
+      {/* ---------- Thanh ghi đo nổi — phía trên thanh điều hướng ---------- */}
+      <div
+        className="pointer-events-none fixed inset-x-0 z-40"
+        style={{ bottom: "calc(4.25rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="mx-auto flex max-w-[680px] gap-3 px-5 sm:px-8">
           <button onClick={() => setPreOpen(true)} className="btn-primary pointer-events-auto flex-1">
             <IconDrop className="h-5 w-5" /> Đo trước ăn
           </button>
@@ -243,6 +222,9 @@ export default function HomePage() {
           </button>
         </div>
       </div>
+
+      {/* ---------- Thanh điều hướng đáy: Lịch sử · Cài đặt · Giao diện · Đăng xuất ---------- */}
+      <BottomNav onOpenHistory={handleOpenHistory} onOpenSettings={() => setSettingsOpen(true)} onLogout={handleLogout} />
 
       {/* ---------- Sheets ---------- */}
       {settings && (
@@ -270,11 +252,11 @@ export default function HomePage() {
         </>
       )}
 
-      {/* Toast foreground push — phía trên thanh ghi đo */}
+      {/* Toast foreground push — phía trên cụm nút ghi đo nổi */}
       {toast && (
         <div
           className="fixed inset-x-4 z-50 mx-auto max-w-md rounded-lg border border-line bg-card px-4 py-3 text-sm shadow-lg"
-          style={{ bottom: "calc(4.5rem + env(safe-area-inset-bottom))" }}
+          style={{ bottom: "calc(8.25rem + env(safe-area-inset-bottom))" }}
           role="status"
         >
           {toast}

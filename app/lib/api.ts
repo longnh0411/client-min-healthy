@@ -20,7 +20,7 @@ import {
   setUser,
   type AuthTokens,
 } from "@/lib/session";
-import type { Meal, MealPage, MealType, GlucoseSettings } from "@/lib/types";
+import type { AppNotification, Meal, MealPage, MealType, GlucoseSettings } from "@/lib/types";
 
 const BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "") + "/api";
 const PREFIX = "/min-healthy";
@@ -248,4 +248,20 @@ export function registerFcmToken(token: string): Promise<unknown> {
 
 export function unregisterFcmToken(token: string): Promise<unknown> {
   return apiSend("DELETE", "/notification/unregister", { token }, { raw: true });
+}
+
+// ---------- In-app notifications (dropdown chuông) ----------
+
+export function listNotifications(isRead?: boolean): Promise<AppNotification[]> {
+  const params = new URLSearchParams({ app: APP_ID });
+  if (isRead !== undefined) params.set("is_read", String(isRead));
+  return apiGet<AppNotification[]>(`/notification?${params.toString()}`, { raw: true });
+}
+
+export function markNotificationRead(id: string): Promise<void> {
+  return apiSend("PATCH", `/notification/${id}/read`, undefined, { raw: true });
+}
+
+export function markAllNotificationsRead(): Promise<void> {
+  return apiSend("PATCH", `/notification/read-all?app=${APP_ID}`, undefined, { raw: true });
 }

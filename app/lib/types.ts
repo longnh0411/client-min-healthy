@@ -48,6 +48,17 @@ export interface GlucoseSettings {
   reminders: GlucoseReminder[];
 }
 
+/** In-app notification (service notification của monolith, app=min-healthy) */
+export interface AppNotification {
+  id: string;
+  type: string;
+  app: string;
+  title: string;
+  body: string;
+  is_read: boolean;
+  createdAt: string;
+}
+
 export const MEAL_TYPE_LABELS: Record<MealType, string> = {
   breakfast: "Bữa sáng",
   lunch: "Bữa trưa",
