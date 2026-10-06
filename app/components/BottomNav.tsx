@@ -54,7 +54,7 @@ export default function BottomNav({
 
   return (
     <nav aria-label="Điều hướng" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur">
-      <div className="mx-auto grid max-w-[680px] grid-cols-5 items-center px-2 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1">
+      <div className="mx-auto grid max-w-[680px] grid-cols-5 items-center px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1">
         {items.slice(0, 2).map(({ key, ...rest }) => (
           <NavItem key={key} {...rest} />
         ))}

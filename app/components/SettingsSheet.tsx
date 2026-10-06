@@ -7,7 +7,7 @@ import BottomSheet from "./BottomSheet";
 import { IconMoon, IconSun } from "./icons";
 import { updateSettings } from "@/lib/api";
 import { enableNotifications, disableNotifications, isMessagingConfigured } from "@/lib/notifications";
-import { DEFAULT_THRESHOLDS, type GlucoseThresholds } from "@/lib/glucose";
+import { DEFAULT_THRESHOLDS, validateThresholds, type GlucoseThresholds } from "@/lib/glucose";
 import { REMINDER_KIND_LABELS, type GlucoseSettings, type GlucoseReminder, type ReminderKind } from "@/lib/types";
 
 interface SettingsSheetProps {
@@ -20,7 +20,6 @@ interface SettingsSheetProps {
 
 const THRESHOLD_FIELDS: { key: keyof GlucoseThresholds; label: string; hint: string }[] = [
   { key: "low", label: "Thấp <", hint: "mg/dL — dưới mức này là hạ đường huyết" },
-  { key: "preMin", label: "Hơi thấp (trước ăn) <", hint: "mg/dL — đo trước ăn dưới mức này" },
   { key: "preMax", label: "Mục tiêu trước ăn ≤", hint: "mg/dL — đo trước ăn trong mục tiêu" },
   { key: "postMax", label: "Mục tiêu sau ăn ≤", hint: "mg/dL — đo sau ăn trong mục tiêu" },
   { key: "veryHigh", label: "Rất cao ≥", hint: "mg/dL — hiện cảnh báo an toàn" },
@@ -60,7 +59,6 @@ export default function SettingsSheet({ open, settings, notificationsEnabled, on
     if (!open) return;
     setThresholds({
       low: settings.low,
-      preMin: settings.preMin,
       preMax: settings.preMax,
       postMax: settings.postMax,
       veryHigh: settings.veryHigh,
@@ -119,10 +117,16 @@ export default function SettingsSheet({ open, settings, notificationsEnabled, on
   };
 
   const save = async () => {
+    const err = validateThresholds(thresholds);
+    if (err) {
+      setError(err);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
-      const saved = await updateSettings({ ...thresholds, reminders });
+      // Giữ nguyên preMin cũ (client không còn dùng để phân loại — BR-07 4 mức)
+      const saved = await updateSettings({ ...thresholds, preMin: settings.preMin, reminders });
       onSaved(saved, notifOn);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Không lưu được cài đặt");

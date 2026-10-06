@@ -7,17 +7,19 @@ import BottomSheet from "./BottomSheet";
 import { IconCamera, IconX } from "./icons";
 import { updateMeal, deleteMeal } from "@/lib/api";
 import { uploadMealPhoto } from "@/lib/upload";
-import { validateReadingValue } from "@/lib/glucose";
+import { validateReadingValue, validateNotFuture } from "@/lib/glucose";
 import { MEAL_TYPE_LABELS, type Meal, type MealType } from "@/lib/types";
 import { toDatetimeLocal, fromDatetimeLocal } from "@/lib/format";
 
 interface EditMealSheetProps {
   meal: Meal | null;
+  /** Mất mạng → vô hiệu nút Lưu (FR-NET-01) */
+  offline: boolean;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function EditMealSheet({ meal, onClose, onSaved }: EditMealSheetProps) {
+export default function EditMealSheet({ meal, offline, onClose, onSaved }: EditMealSheetProps) {
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [eatenAt, setEatenAt] = useState(toDatetimeLocal());
   const [foods, setFoods] = useState("");
@@ -59,6 +61,15 @@ export default function EditMealSheet({ meal, onClose, onSaved }: EditMealSheetP
     const postErr = postValue ? validateReadingValue(postValue) : null;
     if (postErr) {
       setError(`Số đo sau ăn: ${postErr}`);
+      return;
+    }
+    // BR-04: không cho thời gian ở tương lai (chỉ kiểm khi có giá trị)
+    const timeErr =
+      validateNotFuture(eatenAt) ??
+      (preValue ? validateNotFuture(preAt) : null) ??
+      (postValue ? validateNotFuture(postAt) : null);
+    if (timeErr) {
+      setError(timeErr);
       return;
     }
 
@@ -142,14 +153,14 @@ export default function EditMealSheet({ meal, onClose, onSaved }: EditMealSheetP
           <label htmlFor="edit-foods" className="mb-1 block text-sm font-semibold">
             Món ăn
           </label>
-          <input id="edit-foods" type="text" value={foods} onChange={(e) => setFoods(e.target.value)} className="field" />
+          <input id="edit-foods" type="text" maxLength={200} value={foods} onChange={(e) => setFoods(e.target.value)} className="field" />
         </div>
 
         <div>
           <label htmlFor="edit-note" className="mb-1 block text-sm font-semibold">
             Ghi chú (thuốc, vận động…)
           </label>
-          <input id="edit-note" type="text" value={note} onChange={(e) => setNote(e.target.value)} className="field" />
+          <input id="edit-note" type="text" maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} className="field" />
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -243,8 +254,8 @@ export default function EditMealSheet({ meal, onClose, onSaved }: EditMealSheetP
           >
             {confirmDelete ? "Bấm lần nữa để xoá" : "Xoá"}
           </button>
-          <button onClick={submit} disabled={saving} className="btn-primary flex-1">
-            {saving ? "Đang lưu…" : "Lưu thay đổi"}
+          <button onClick={submit} disabled={saving || offline} className="btn-primary flex-1">
+            {offline ? "Đang offline" : saving ? "Đang lưu…" : "Lưu thay đổi"}
           </button>
         </div>
       </div>

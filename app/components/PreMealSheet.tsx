@@ -1,8 +1,8 @@
 "use client";
 
-// Sheet "Đo trước ăn": số đo → loại bữa (tự đoán theo giờ, sửa được) → món ăn
-// (tuỳ chọn) → ảnh (tuỳ chọn) → thời gian (mặc định bây giờ, sửa khi nhập bù).
-// Ngay khi nhập số đo, hiện thẻ "Bữa trước" làm ngữ cảnh (plan.md §3.1/§5.3).
+// Sheet "Đo trước ăn" (SRS S2): số đo → loại bữa (tự đoán theo giờ BR-06, sửa được)
+// → món ăn (≤200) → ghi chú (≤300) → thời gian (không tương lai BR-04) → ảnh (tuỳ chọn).
+// Validate theo thứ tự: BR-01 → BR-04 → BR-15 (lệch >100) → BR-17 (trùng buổi đã có số đo).
 import { useMemo, useState } from "react";
 import BottomSheet from "./BottomSheet";
 import { IconCamera, IconX } from "./icons";
@@ -10,46 +10,53 @@ import { createMeal } from "@/lib/api";
 import { uploadMealPhoto } from "@/lib/upload";
 import {
   validateReadingValue,
+  validateNotFuture,
   isDangerReading,
   isSuspiciousJump,
   findPreviousMeal,
-  isFastingSincePrevious,
+  previousMealLabel,
   guessMealType,
 } from "@/lib/glucose";
 import { MEAL_TYPE_LABELS, type Meal, type MealType, type GlucoseSettings } from "@/lib/types";
-import { toDatetimeLocal, fromDatetimeLocal, fmtGap, fmtTime } from "@/lib/format";
+import { dayKey, toDatetimeLocal, fromDatetimeLocal } from "@/lib/format";
 
 interface PreMealSheetProps {
   open: boolean;
   onClose: () => void;
   meals: Meal[];
   settings: GlucoseSettings;
+  /** Mất mạng → vô hiệu nút Lưu (FR-NET-01) */
+  offline: boolean;
   onSaved: (dangerValue: number | null) => void;
 }
 
-export default function PreMealSheet({ open, onClose, meals, settings, onSaved }: PreMealSheetProps) {
+export default function PreMealSheet({ open, onClose, meals, settings, offline, onSaved }: PreMealSheetProps) {
   const [value, setValue] = useState("");
   const [mealType, setMealType] = useState<MealType>("breakfast");
   const [foods, setFoods] = useState("");
+  const [note, setNote] = useState("");
   const [measuredAt, setMeasuredAt] = useState(toDatetimeLocal());
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmJump, setConfirmJump] = useState(false);
+  const [confirmDup, setConfirmDup] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const reset = () => {
     setValue("");
     setMealType(guessMealType());
     setFoods("");
+    setNote("");
     setMeasuredAt(toDatetimeLocal());
     setPhoto(null);
     setPhotoPreview(null);
     setError(null);
     setConfirmJump(false);
+    setConfirmDup(false);
   };
 
-  // Bữa "ảo" tại thời điểm đang nhập — để tìm bữa trước và tính lúc đói
+  // Bữa "ảo" tại thời điểm đang nhập — để tìm bữa trước làm ngữ cảnh (BR-08)
   const pseudo: Meal = useMemo(
     () => ({
       id: "",
@@ -69,13 +76,17 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
     return findPreviousMeal(meals, pseudo);
   }, [value, meals, pseudo]);
 
-  const fasting = prevMeal ? isFastingSincePrevious(prevMeal, pseudo) : false;
-
   const handlePhoto = (f: File | undefined) => {
     if (!f) return;
     setPhoto(f);
     setPhotoPreview(URL.createObjectURL(f));
   };
+
+  /** BR-17 (adapted): đã có entry cùng ngày + cùng buổi có số đo trước → hỏi xác nhận. */
+  const hasDuplicatePre = () =>
+    meals.some(
+      (m) => m.pre && dayKey(m.eatenAt) === dayKey(pseudo.eatenAt) && m.mealType === mealType,
+    );
 
   const submit = async () => {
     const err = validateReadingValue(value);
@@ -85,11 +96,26 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
     }
     const v = Number(value);
 
-    // Lệch >100 so với số đo trước cùng loại → hỏi xác nhận (plan.md §3.6)
+    const timeErr = validateNotFuture(measuredAt);
+    if (timeErr) {
+      setError(timeErr);
+      return;
+    }
+
+    // BR-15: lệch >100 so với số đo pre gần nhất → hỏi xác nhận
     const lastPre = meals.find((m) => m.pre)?.pre?.value ?? null;
     if (!confirmJump && isSuspiciousJump(v, lastPre)) {
       setConfirmJump(true);
       setError("Bạn chắc chắn số này đúng?");
+      return;
+    }
+
+    // BR-17: buổi này hôm đó đã có số đo trước → hỏi xác nhận trước khi thêm
+    if (!confirmDup && hasDuplicatePre()) {
+      setConfirmDup(true);
+      setError(
+        `Buổi ${MEAL_TYPE_LABELS[mealType].toLowerCase()} hôm nay đã có số đo trước ăn. Vẫn lưu thêm?`,
+      );
       return;
     }
 
@@ -105,6 +131,7 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
         mealType,
         eatenAt: fromDatetimeLocal(measuredAt),
         foods: foods.trim(),
+        note: note.trim(),
         pre: { value: v, measuredAt: fromDatetimeLocal(measuredAt) },
         photoUrl,
       });
@@ -134,6 +161,7 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
               setValue(e.target.value);
               setError(null);
               setConfirmJump(false);
+              setConfirmDup(false);
             }}
             className="field reading-value !py-2.5"
             autoFocus
@@ -158,9 +186,25 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
           <input
             id="pre-foods"
             type="text"
+            maxLength={200}
             placeholder="Cơm, thịt kho, canh…"
             value={foods}
             onChange={(e) => setFoods(e.target.value)}
+            className="field"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="pre-note" className="mb-1 block text-sm font-semibold">
+            Ghi chú (tuỳ chọn)
+          </label>
+          <input
+            id="pre-note"
+            type="text"
+            maxLength={300}
+            placeholder="Thuốc, vận động…"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
             className="field"
           />
         </div>
@@ -209,16 +253,13 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
           )}
         </div>
 
-        {/* Ngữ cảnh bữa trước — giúp hiểu con số trước ăn */}
-        {prevMeal && (
+        {/* Ngữ cảnh bữa trước — BR-08, tính khi hiển thị */}
+        {value && prevMeal && (
           <div className="rounded-md bg-card-2 px-4 py-3 text-sm">
             <p className="font-semibold">
-              {fasting ? "⏱ Lúc đói" : `◂ Bữa trước: ${MEAL_TYPE_LABELS[prevMeal.mealType]} ${fmtTime(prevMeal.eatenAt)}`}
-            </p>
-            <p className="mt-0.5 text-xs text-faint">
-              {prevMeal.foods ? `${prevMeal.foods} · ` : ""}
-              cách {fmtGap(prevMeal.eatenAt, fromDatetimeLocal(measuredAt))}
-              {prevMeal.post ? ` · sau bữa đó ${prevMeal.post.value} mg/dL` : ""}
+              ▸ Bữa trước: {prevMeal.foods ? `${prevMeal.foods} · ` : ""}
+              {previousMealLabel(prevMeal, new Date())}
+              {prevMeal.post ? ` · sau ăn ${prevMeal.post.value} mg/dL` : ""}
             </p>
           </div>
         )}
@@ -229,8 +270,13 @@ export default function PreMealSheet({ open, onClose, meals, settings, onSaved }
           </div>
         )}
 
-        <button onClick={submit} disabled={saving} className="btn-primary w-full">
-          {saving ? "Đang lưu…" : "Lưu số đo"}
+        <button
+          onClick={submit}
+          disabled={saving || offline}
+          className="btn-primary w-full"
+          title={offline ? "Đang offline" : undefined}
+        >
+          {offline ? "Đang offline — không thể lưu" : saving ? "Đang lưu…" : "Lưu số đo"}
         </button>
       </div>
     </BottomSheet>

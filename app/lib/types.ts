@@ -59,6 +59,16 @@ export interface AppNotification {
   createdAt: string;
 }
 
+/** Kết quả xét nghiệm HbA1c thực tế (FR-LAB, BR-12: value 3.0–20.0%) */
+export interface LabResult {
+  id: string;
+  value: number;
+  testedAt: string;
+  note: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export const MEAL_TYPE_LABELS: Record<MealType, string> = {
   breakfast: "Bữa sáng",
   lunch: "Bữa trưa",

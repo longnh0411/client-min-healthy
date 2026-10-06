@@ -156,7 +156,17 @@ html:has(.login-page) {
   outline-offset: 2px;
 }
 
-/* ---------- Scrollbar ---------- */
+/* ---------- Scrollbar: ẩn thanh cuộn của trang (cuộn vẫn hoạt động) —
+   vùng cuộn nhỏ bên trong (sheet, dropdown) vẫn giữ thanh mảnh ---------- */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
@@ -202,11 +212,6 @@ html:has(.login-page) {
   color: var(--rose);
   border-color: color-mix(in srgb, var(--rose) 40%, transparent);
   background: var(--rose-soft);
-}
-.chip-slightly-low {
-  color: var(--warn);
-  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
-  background: color-mix(in srgb, var(--warn) 10%, transparent);
 }
 .chip-in-target {
   color: var(--primary);

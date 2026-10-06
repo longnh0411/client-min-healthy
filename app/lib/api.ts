@@ -20,7 +20,7 @@ import {
   setUser,
   type AuthTokens,
 } from "@/lib/session";
-import type { AppNotification, Meal, MealPage, MealType, GlucoseSettings } from "@/lib/types";
+import type { AppNotification, LabResult, Meal, MealPage, MealType, GlucoseSettings } from "@/lib/types";
 
 const BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "") + "/api";
 const PREFIX = "/min-healthy";
@@ -220,6 +220,27 @@ export function updateSettings(
   payload: Partial<GlucoseSettings>,
 ): Promise<GlucoseSettings> {
   return apiSend<GlucoseSettings>("PUT", "/settings", payload);
+}
+
+// ---------- HbA1c xét nghiệm (FR-LAB) ----------
+
+export function listLabs(): Promise<LabResult[]> {
+  return apiGet<LabResult[]>("/labs");
+}
+
+export function createLab(payload: { value: number; testedAt: string; note?: string }): Promise<LabResult> {
+  return apiSend<LabResult>("POST", "/labs", payload);
+}
+
+export function updateLab(
+  id: string,
+  payload: Partial<{ value: number; testedAt: string; note: string | null }>,
+): Promise<LabResult> {
+  return apiSend<LabResult>("PATCH", `/labs/${id}`, payload);
+}
+
+export function deleteLab(id: string): Promise<{ id: string }> {
+  return apiSend<{ id: string }>("DELETE", `/labs/${id}`);
 }
 
 // ---------- Ảnh R2 (dùng chung endpoint user của monolith) ----------

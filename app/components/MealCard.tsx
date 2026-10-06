@@ -9,10 +9,10 @@ import {
   STATUS_META,
   calcDelta,
   findPreviousMeal,
-  isFastingSincePrevious,
+  previousMealLabel,
   minutesAfterMeal,
 } from "@/lib/glucose";
-import { fmtTime, fmtDelta, fmtDuration, fmtGap } from "@/lib/format";
+import { fmtTime, fmtDelta, fmtDuration } from "@/lib/format";
 
 interface MealCardProps {
   meal: Meal;
@@ -50,13 +50,13 @@ function ReadingRow({
 export default function MealCard({ meal, meals, settings, onEdit }: MealCardProps) {
   const delta = calcDelta(meal.pre, meal.post);
   const prev = findPreviousMeal(meals, meal);
-  const fasting = isFastingSincePrevious(prev, meal);
   const deltaArrow = delta === null ? "" : delta > 0 ? "↗" : delta < 0 ? "↘" : "→";
 
   return (
     <button
+      id={`meal-${meal.id}`}
       onClick={() => onEdit(meal)}
-      className="w-full rounded-lg border border-line bg-card px-4 py-3.5 text-left transition hover:border-primary/60 active:bg-card-2"
+      className="w-full scroll-mt-20 rounded-lg border border-line bg-card px-4 py-3.5 text-left transition hover:border-primary/60 active:bg-card-2"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -83,14 +83,12 @@ export default function MealCard({ meal, meals, settings, onEdit }: MealCardProp
             {meal.post && <ReadingRow label="Sau" reading={meal.post} kind="post" settings={settings} eatenAt={meal.eatenAt} />}
           </div>
 
-          {/* Ngữ cảnh cho số đo trước ăn: bữa trước đó (tính khi hiển thị, không lưu) */}
+          {/* Ngữ cảnh cho số đo trước ăn: entry đứng ngay trước theo (ngày, buổi) — BR-08 */}
           {meal.pre && (
             <p className="mt-1.5 text-xs text-faint">
               {prev
-                ? fasting
-                  ? `⏱ Lúc đói — bữa trước: ${fmtGap(prev.eatenAt, meal.eatenAt)} trước`
-                  : `◂ Bữa trước: ${MEAL_TYPE_LABELS[prev.mealType]} ${fmtTime(prev.eatenAt)}${prev.foods ? ` (${prev.foods})` : ""} — cách ${fmtGap(prev.eatenAt, meal.eatenAt)}${prev.post ? ` · sau ăn ${prev.post.value}` : ""}`
-                : "⏱ Chưa có bữa trước trong dữ liệu"}
+                ? `▸ Bữa trước: ${prev.foods ? `${prev.foods} · ` : ""}${previousMealLabel(prev)}${prev.post ? ` · sau ăn ${prev.post.value}` : ""}`
+                : "▸ Chưa có bữa trước trong dữ liệu"}
             </p>
           )}
         </div>

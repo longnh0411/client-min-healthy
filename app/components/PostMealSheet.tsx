@@ -6,7 +6,7 @@
 import { useState } from "react";
 import BottomSheet from "./BottomSheet";
 import { updateMeal } from "@/lib/api";
-import { validateReadingValue, isDangerReading, isSuspiciousJump, minutesAfterMeal } from "@/lib/glucose";
+import { validateReadingValue, validateNotFuture, isDangerReading, isSuspiciousJump, minutesAfterMeal } from "@/lib/glucose";
 import { MEAL_TYPE_LABELS, type Meal } from "@/lib/types";
 import { toDatetimeLocal, fromDatetimeLocal, fmtDuration, fmtTime } from "@/lib/format";
 
@@ -15,10 +15,12 @@ interface PostMealSheetProps {
   onClose: () => void;
   /** 5 bữa gần nhất để chọn gắn (mặc định chọn bữa đầu chưa có post) */
   recentMeals: Meal[];
+  /** Mất mạng → vô hiệu nút Lưu (FR-NET-01) */
+  offline: boolean;
   onSaved: (dangerValue: number | null) => void;
 }
 
-export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: PostMealSheetProps) {
+export default function PostMealSheet({ open, onClose, recentMeals, offline, onSaved }: PostMealSheetProps) {
   const defaultMeal = recentMeals.find((m) => !m.post) ?? recentMeals[0] ?? null;
   const [mealId, setMealId] = useState<string | null>(null);
   const [value, setValue] = useState("");
@@ -49,6 +51,12 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
       return;
     }
     const v = Number(value);
+
+    const timeErr = validateNotFuture(measuredAt);
+    if (timeErr) {
+      setError(timeErr);
+      return;
+    }
 
     const lastPost = recentMeals.find((m) => m.post)?.post?.value ?? null;
     if (!confirmJump && isSuspiciousJump(v, lastPost)) {
@@ -143,8 +151,8 @@ export default function PostMealSheet({ open, onClose, recentMeals, onSaved }: P
               </div>
             )}
 
-            <button onClick={submit} disabled={saving || !selected} className="btn-primary w-full">
-              {saving ? "Đang lưu…" : "Lưu số đo"}
+            <button onClick={submit} disabled={saving || offline || !selected} className="btn-primary w-full">
+              {offline ? "Đang offline — không thể lưu" : saving ? "Đang lưu…" : "Lưu số đo"}
             </button>
           </>
         )}
