@@ -56,7 +56,6 @@ export default function LoginPage() {
         setLoading(false);
       });
     return () => window.removeEventListener("pageshow", onPageShow);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleGoogle = async () => {
