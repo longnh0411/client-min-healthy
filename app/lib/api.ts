@@ -24,7 +24,7 @@ import type { AppNotification, LabResult, Meal, MealPage, MealType, GlucoseSetti
 
 const BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/+$/, "") + "/api";
 const PREFIX = "/min-healthy";
-const APP_ID = "min-healthy";
+const APP_ID = "mim-healthy";
 
 interface Envelope<T> {
   success: boolean;
