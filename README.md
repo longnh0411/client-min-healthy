@@ -52,6 +52,15 @@ Lưu ý **iOS Safari**: push nền chỉ nhận khi đã cài app qua “Thêm v
 
 Thêm domain client (localhost:3000 + domain Vercel) vào env `WEB_URLS` của api-longnh-tools.
 
+### SEO / Google Search (playbook KB `docs/seo-google-index-spa`)
+
+Toàn bộ app nằm sau login → chỉ có `/login` là trang public được index. Chuẩn bị:
+
+1. Điền `NEXT_PUBLIC_SITE_URL` (domain thật, không phải `*.vercel.app` nếu có domain riêng) trên Vercel — `robots.txt`, `sitemap.xml`, canonical + OpenGraph tự bật theo env này.
+2. Verify bằng curl sau deploy: `curl https://<domain>/robots.txt` và `/sitemap.xml` phải trả text/XML thật (không phải HTML) — nếu DNS qua Cloudflare, tắt "AI Crawl Control / Managed robots.txt" trước.
+3. Google Search Console: add property kiểu **Domain** → verify TXT record → Sitemaps submit `https://<domain>/sitemap.xml` → URL Inspection dán `/login` → **Request Indexing**.
+4. Chờ 3–7 ngày rồi kiểm tra `site:<domain>`. Lưu ý Googlebot render JS chậm — meta/JSON-LD đã đặt sẵn trong HTML head nên không phụ thuộc render.
+
 ## Lệnh
 
 ```bash
