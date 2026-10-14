@@ -93,6 +93,8 @@ node scripts/generate-icons.mjs   # sinh lại icon PWA từ scripts/icon-source
 
 ## Future work
 
-- Offline-first (ghi khi mất mạng, đồng bộ lại) — hiện REST thuần.
+- Offline-first cho dữ liệu (ghi khi mất mạng, đồng bộ lại) — hiện REST thuần; app shell
+  (trang + tài nguyên tĩnh) đã cache qua service worker nên mất/đổi mạng không mất app,
+  chỉ banner "Đang offline" (FR-NET-01).
 - Dọn object R2 mồ côi khi xoá meal (hiện giữ nguyên ảnh như hành vi avatar của API).
 - Gợi ý tự hoàn thành tên món từ lịch sử; xuất CSV.

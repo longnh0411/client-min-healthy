@@ -36,6 +36,13 @@ async function getMessagingIfSupported(): Promise<Messaging | null> {
   return getMessaging(getFirebaseApp());
 }
 
+/** Đăng ký service worker (scope "/") — app shell offline + điều kiện cài PWA.
+ * Gọi ngay khi app mount, KHÔNG phụ thuộc quyền thông báo (mất mạng/đổi mạng
+ * vẫn mở được app; push chỉ kích hoạt phần FCM trong SW khi có config). */
+export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+  return ensureServiceWorker();
+}
+
 /** Đăng ký nhận push: xin quyền → getToken → POST register. Trả token hoặc null (bị từ chối/chưa config). */
 export async function enableNotifications(): Promise<string | null> {
   const messaging = await getMessagingIfSupported();

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { getAccessToken, getUser, isLoggedIn } from "@/lib/session";
 import type { SessionUser } from "@/lib/session";
 import { logout, listMeals, getSettings } from "@/lib/api";
-import { syncTokenOnLoad, onForegroundMessage } from "@/lib/notifications";
+import { syncTokenOnLoad, onForegroundMessage, registerServiceWorker } from "@/lib/notifications";
 import type { Meal, GlucoseSettings } from "@/lib/types";
 import InstallPrompt from "@/components/InstallPrompt";
 import A1cCard from "@/components/A1cCard";
@@ -50,9 +50,13 @@ export default function HomePage() {
   const [labs, setLabs] = useState<LabResult[]>([]);
   const [labOpen, setLabOpen] = useState(false);
 
-  // FR-NET-01: mất mạng → banner + vô hiệu nút Lưu; có mạng lại tự phục hồi
+  // FR-NET-01: mất mạng → banner + vô hiệu nút Lưu; có mạng lại → toast + phục hồi
   useEffect(() => {
-    const on = () => setOffline(false);
+    const on = () => {
+      setOffline(false);
+      setToast("Đã có lại kết nối mạng");
+      setTimeout(() => setToast(null), 3000);
+    };
     const off = () => setOffline(true);
     setOffline(!navigator.onLine);
     window.addEventListener("online", on);
@@ -127,6 +131,8 @@ export default function HomePage() {
     load();
     // FCM: đăng ký lại token (nếu đã cấp quyền) + nhận push foreground → toast
     let unsubMsg: (() => void) | undefined;
+    // Đăng ký SW ngay khi vào app: app shell offline (mất/đổi mạng không mất app) + PWA
+    registerServiceWorker();
     syncTokenOnLoad().then(() => setNotifEnabled(Notification.permission === "granted"));
     onForegroundMessage((title, body) => {
       setToast(`${title}: ${body}`);
